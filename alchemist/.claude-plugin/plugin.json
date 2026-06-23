@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "description": "Turns raw ideas into shipped gold. 75+ composable, Android-first Flutter skills — from app idea through premium Material 3 UI, clean architecture, Riverpod state, backend, security, testing, CI/CD, Play Store deployment, monitoring, and production readiness. A Master Orchestrator sequences the pipeline; autonomous agents handle maintenance, CI healing, and crash triage. Includes memory systems (semantic index, telemetry, decision ledger, regression memory) and a token-economy engine. Trigger via /initialize for an interactive build loop, or invoke any skill directly.",
   "author": {
-    "name": "abhin"
+    "name": "RICH-KEED"
   },
   "license": "MIT",
   "keywords": [
