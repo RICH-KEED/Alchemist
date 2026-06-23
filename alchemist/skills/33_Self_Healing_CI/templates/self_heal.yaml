@@ -1,0 +1,113 @@
+# .github/workflows/self-heal.yaml
+#
+# Self-Healing CI Agent (#33) — diagnose-and-notify.
+# Fires when the main CI workflow finishes with conclusion == failure, downloads the failed run's
+# logs, runs Build Doctor's diagnose.py (#37) over them, and posts the diagnosis as an issue/comment.
+#
+# SAFETY: this template is DIAGNOSE + NOTIFY only. It NEVER auto-commits, NEVER merges, NEVER touches
+# secrets. The `gh` write steps are commented out so a human opts in before the bot writes to the
+# repo. Auto-commit fixes (routing to #37 / #41) stay an explicit, separate, opt-in workflow.
+#
+# Prereqgs:
+#   - Your CI workflow is named below in `workflows:` (match it exactly).
+#   - scripts/diagnose.py from skill 37_Build_Doctor is committed to the repo (path set below).
+
+name: Self-Heal CI
+
+on:
+  workflow_run:
+    workflows: ["CI"]            # <-- the name: of your ci.yaml workflow (skill 21)
+    types: [completed]
+
+# Least privilege. Only `read` is needed to diagnose; the commented write steps below would need
+# `issues: write` / `pull-requests: write` — grant them ONLY when you opt into the notify steps.
+permissions:
+  contents: read
+  actions: read
+  # issues: write            # uncomment to let the diagnosis step open/comment on an issue
+  # pull-requests: write     # uncomment to comment the diagnosis on the failing PR
+
+jobs:
+  diagnose:
+    # Only react to FAILED runs — skip success/cancelled/skipped.
+    if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+    runs-on: ubuntu-latest
+    env:
+      RUN_ID: ${{ github.event.workflow_run.id }}
+      HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Checkout (for diagnose.py + report template)
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Fetch failed run logs
+        # Only the failed steps' logs — the cause sits above "exit code 1".
+        run: |
+          echo "Diagnosing failed run $RUN_ID on branch $HEAD_BRANCH"
+          gh run view "$RUN_ID" --log-failed > ci.log || \
+            gh run view "$RUN_ID" --log > ci.log
+          echo "Captured $(wc -l < ci.log) log lines."
+
+      - name: Run Build Doctor diagnosis (#37)
+        id: diagnose
+        # diagnose.py exits 0 when a signature matched, 1 when nothing matched (not a CI failure here).
+        run: |
+          DIAG=$(python skills/37_Build_Doctor/scripts/diagnose.py --json ci.log || true)
+          echo "$DIAG" > diagnosis.json
+          cat diagnosis.json
+          # Build a markdown body for the (opt-in) issue/comment.
+          {
+            echo "## Self-Heal CI — diagnosis for run [#${RUN_ID}](${{ github.event.workflow_run.html_url }})"
+            echo ""
+            echo "- **Branch:** \`${HEAD_BRANCH}\`"
+            echo "- **Conclusion:** failure"
+            echo ""
+            echo "### Ranked cause(s)"
+            echo '```json'
+            cat diagnosis.json
+            echo '```'
+            echo ""
+            echo "_Posted by the Self-Healing CI agent (#33). No fix was applied — this is diagnosis only._"
+            echo "_Next: route to Build Doctor (#37) for build, Analyzer Auto-Fix (#41) for lint, or see the failure taxonomy._"
+          } > heal_body.md
+          cat heal_body.md
+
+      - name: Upload diagnosis artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: self-heal-diagnosis
+          path: |
+            ci.log
+            diagnosis.json
+            heal_body.md
+
+      # ----------------------------------------------------------------------------------------
+      # OPT-IN NOTIFY STEPS — uncomment ONE, and grant the matching permission above.
+      # The agent only WRITES to the repo once you enable this. Still no commits, no merges.
+      # ----------------------------------------------------------------------------------------
+
+      # - name: Open an issue with the diagnosis
+      #   run: |
+      #     gh issue create \
+      #       --title "Self-Heal: CI run #${RUN_ID} failed on ${HEAD_BRANCH}" \
+      #       --body-file heal_body.md \
+      #       --label "ci-failure,self-heal"
+
+      # - name: Comment the diagnosis on the failing PR
+      #   run: |
+      #     PR=$(gh pr list --head "$HEAD_BRANCH" --json number --jq '.[0].number')
+      #     if [ -n "$PR" ]; then
+      #       gh pr comment "$PR" --body-file heal_body.md
+      #     else
+      #       echo "No open PR for branch $HEAD_BRANCH; skipping comment."
+      #     fi
+
+      # ----------------------------------------------------------------------------------------
+      # NOT PROVIDED HERE (by design): auto-commit fixes, gh pr merge, secret writes.
+      # Those violate the #33 safety rails for an unattended trigger. Keep heals human-approved.
+      # ----------------------------------------------------------------------------------------

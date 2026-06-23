@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+# Pre-commit hook — secrets scanner for Flutter/Android projects.
+# Install: cp templates/pre-commit .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
+#
+# Calls scan_secrets.py on staged files.  Aborts commit on HIGH findings.
+# Skip with: git commit --no-verify
+
+set -euo pipefail
+
+SKILL_DIR="${CLAUDE_SKILL_DIR}"
+if [ -z "${SKILL_DIR}" ]; then
+  echo "pre-commit: CLAUDE_SKILL_DIR is not set — cannot locate scan_secrets.py"
+  exit 0
+fi
+
+SCANNER="${SKILL_DIR}/scripts/scan_secrets.py"
+
+if [ ! -f "${SCANNER}" ]; then
+  echo "pre-commit: scanner not found at ${SCANNER}"
+  exit 0
+fi
+
+echo "pre-commit: running secrets scan on staged files..."
+python3 "${SCANNER}" --staged
+
+if [ $? -ne 0 ]; then
+  echo ""
+  echo "pre-commit: HIGH-severity secrets found. Commit aborted."
+  echo "Review the findings above. Use .secrets-allowlist for false positives."
+  echo "To bypass in an emergency: git commit --no-verify"
+  exit 1
+fi
+
+echo "pre-commit: secrets scan clean."
+exit 0

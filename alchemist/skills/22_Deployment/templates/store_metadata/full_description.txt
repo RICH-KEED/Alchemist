@@ -1,0 +1,28 @@
+Describe your app here (max 4000 characters).
+
+Lead with the core value: what problem does the app solve and for whom? Then expand.
+
+Key features:
+• Feature one — the headline capability.
+• Feature two — what makes it premium / different.
+• Feature three — supporting feature.
+
+Why people choose <My App Name>:
+- Reason one.
+- Reason two.
+
+Add a short closing line and, if relevant, a note about support or privacy.
+
+NOTE ON FASTLANE SUPPLY LAYOUT
+------------------------------
+This file is a placeholder. For `fastlane supply` to pick it up, copy these files into:
+
+  android/fastlane/metadata/android/<locale>/
+
+  title.txt              -> title.txt              (<= 30 chars)
+  short_description.txt  -> short_description.txt   (<= 80 chars)
+  full_description.txt   -> full_description.txt    (<= 4000 chars)
+  whats_new.txt          -> changelogs/default.txt  (or changelogs/<versionCode>.txt; <= 500 chars)
+
+Use a locale folder like en-US, en-GB, de-DE, etc. Images go under
+<locale>/images/ (icon/, featureGraphic/, phoneScreenshots/).

@@ -1,0 +1,85 @@
+# ============================================================
+# Flutter / Dart / Android .gitignore (house style, stage 19)
+# Generated Dart (*.g.dart, *.freezed.dart) is COMMITTED on purpose
+# so CI and reviewers see the real output — do NOT ignore it.
+# ============================================================
+
+# --- Dart / Flutter tooling ---
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/
+.fvm/
+
+# Symbolication / obfuscation output
+app.*.symbols
+app.*.map.json
+
+# --- Coverage & test output ---
+coverage/
+test/.test_coverage.dart
+*.lcov
+
+# --- IDE / editor ---
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+.metadata
+*.swp
+.DS_Store
+Thumbs.db
+
+# --- Secrets & signing (NEVER commit) ---
+*.keystore
+*.jks
+key.properties
+android/key.properties
+**/key.properties
+.env
+.env.*
+*.pem
+*.p12
+*.p8
+secrets.dart
+**/google-services.json
+**/GoogleService-Info.plist
+firebase_options.dart   # contains keys; regenerate via flutterfire if preferred
+
+# --- Android ---
+android/.gradle/
+android/captures/
+android/local.properties
+android/**/GeneratedPluginRegistrant.java
+android/app/release/
+android/app/debug/
+android/app/profile/
+*.aab
+*.apk
+
+# --- iOS / macOS (kept clean for cross-platform repos) ---
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/Flutter/Generated.xcconfig
+ios/Flutter/flutter_export_environment.sh
+**/Pods/
+**/.symlinks/
+*.ipa
+ios/ServiceDefinitions.json
+macos/Pods/
+macos/Flutter/GeneratedPluginRegistrant.swift
+
+# --- Web / Windows / Linux build leftovers ---
+/web/
+lib/generated_plugin_registrant.dart
+
+# --- Misc generated ---
+*.log
+*.lock.local
+pubspec_overrides.yaml

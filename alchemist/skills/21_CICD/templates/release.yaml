@@ -1,0 +1,112 @@
+# .github/workflows/release.yaml
+# Release workflow: runs on tags matching v* (e.g. v1.4.0).
+# Decodes the signing keystore from a secret, writes key.properties, builds a signed +
+# obfuscated AAB, and uploads the AAB and debug symbols. Store upload is handed to skill 22.
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+  # id-token: write   # uncomment if you move to OIDC / Workload Identity Federation for Play.
+
+jobs:
+  release:
+    name: Build signed AAB
+    runs-on: ubuntu-latest
+    # Scope release secrets to a protected environment, not to PRs/forks.
+    environment: release
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: '3.x.x'
+          cache: true
+
+      - name: Cache pub and Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.pub-cache
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-pub-gradle-${{ hashFiles('**/pubspec.lock', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-pub-gradle-
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      # --- Signing setup (CI-only; nothing here is committed). See signing_setup.md. ---
+      - name: Decode keystore from secret
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > android/app/upload-keystore.jks
+
+      - name: Write key.properties
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+        run: |
+          {
+            echo "storePassword=$KEYSTORE_PASSWORD"
+            echo "keyPassword=$KEY_PASSWORD"
+            echo "keyAlias=$KEY_ALIAS"
+            echo "storeFile=upload-keystore.jks"
+          } > android/key.properties
+
+      # --- Build: signed + obfuscated, with split debug info (matches skill 13 §4). ---
+      - name: Build release AAB
+        run: |
+          flutter build appbundle --release \
+            --obfuscate \
+            --split-debug-info=build/symbols \
+            --build-name="${GITHUB_REF_NAME#v}"
+
+      - name: Upload AAB artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release-aab
+          path: build/app/outputs/bundle/release/app-release.aab
+          if-no-files-found: error
+
+      - name: Upload debug symbols (for crash de-obfuscation, skill 23)
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-symbols
+          path: build/symbols
+          if-no-files-found: warn
+
+      # --- Store distribution: owned by skill 22 (Deployment). ---
+      # Wire the Play service account, then uncomment to publish to the internal track.
+      #
+      # - name: Decode Play service account
+      #   env:
+      #     PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+      #   run: echo "$PLAY_SERVICE_ACCOUNT_JSON" | base64 -d > play-service-account.json
+      #
+      # - name: Set up Ruby + Fastlane
+      #   uses: ruby/setup-ruby@v1
+      #   with:
+      #     ruby-version: '3.3'
+      #     bundler-cache: true
+      #
+      # - name: Deploy to Play internal track
+      #   run: bundle exec fastlane android deploy_internal
+      #   env:
+      #     SUPPLY_JSON_KEY: play-service-account.json

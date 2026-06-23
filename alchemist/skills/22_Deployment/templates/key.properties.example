@@ -1,0 +1,21 @@
+# android/key.properties  —  upload-key signing config for release builds.
+#
+# ⚠️  DO NOT COMMIT THIS FILE.  It references your private upload keystore and its
+#     passwords. Copy it to `android/key.properties`, fill in real values, and make
+#     sure `.gitignore` covers it (skill 13 §5 already lists key.properties + *.jks).
+#
+#     In CI (skill 21), DO NOT store this file — generate it at build time and
+#     base64-decode the keystore from a secret. Nothing here belongs in the repo.
+
+# Path to your upload keystore. Relative paths are resolved from android/app/.
+# Tip: keep the .jks OUTSIDE the project tree (e.g. an absolute path or ~/keys/...).
+storeFile=../../upload-keystore.jks
+
+# Password for the keystore file itself.
+storePassword=CHANGE_ME
+
+# The key alias you passed to `keytool -genkey ... -alias upload`.
+keyAlias=upload
+
+# Password for that specific key (often the same as storePassword).
+keyPassword=CHANGE_ME

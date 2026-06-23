@@ -1,0 +1,30 @@
+{
+  "name": "alchemist",
+  "displayName": "Alchemist",
+  "version": "1.0.0",
+  "description": "Turns raw ideas into shipped gold. 75+ composable, Android-first Flutter skills — from app idea through premium Material 3 UI, clean architecture, Riverpod state, backend, security, testing, CI/CD, Play Store deployment, monitoring, and production readiness. A Master Orchestrator sequences the pipeline; autonomous agents handle maintenance, CI healing, and crash triage. Includes memory systems (semantic index, telemetry, decision ledger, regression memory) and a token-economy engine. Trigger via /initialize for an interactive build loop, or invoke any skill directly.",
+  "author": {
+    "name": "abhin"
+  },
+  "license": "MIT",
+  "keywords": [
+    "flutter",
+    "dart",
+    "android",
+    "material3",
+    "riverpod",
+    "clean-architecture",
+    "go-router",
+    "ui",
+    "ci-cd",
+    "play-store",
+    "design-system",
+    "testing",
+    "security",
+    "monitoring",
+    "localization",
+    "accessibility",
+    "code-generation",
+    "autonomous-agents"
+  ]
+}

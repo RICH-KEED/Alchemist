@@ -1,0 +1,47 @@
+# flutter_launcher_icons.yaml
+#
+# Drop this at the project root, then run:
+#   dart run flutter_launcher_icons
+#
+# Package: https://pub.dev/packages/flutter_launcher_icons (add to dev_dependencies)
+
+flutter_launcher_icons:
+  # ── Android ──
+  android: true
+  min_sdk_android: 21 # adaptive icons require API 26, but 21 is safe floor
+
+  # Adaptive icon layers (Android 8+)
+  adaptive_icon_foreground: "assets/icon/icon_foreground.png"
+  adaptive_icon_background: "assets/icon/icon_background.png"
+  # Android 13+ monochrome (themed icons). Provide a 1-bit silhouette —
+  # black pixels show the user's theme color; transparent pixels are cut out.
+  adaptive_icon_monochrome: "assets/icon/icon_monochrome.png"
+
+  # ── iOS ──
+  ios: true
+  # Set to false if this is an Android-only app
+  remove_alpha_ios: true
+  # iOS app icon — same source, full color, no alpha channel needed
+
+  # ── Source images ──
+  # The main icon (used for non-adaptive Android + iOS).
+  # At least 1024×1024 px; 2048×2048 recommended.
+  image_path: "assets/icon/icon.png"
+
+  # ── Web ──
+  web:
+    generate: true
+    image_path: "assets/icon/icon.png"
+    background_color: "#FFFFFF" # or your brand color
+    theme_color: "#0D9488"       # or your ColorScheme.primary seed
+
+  # ── Windows ──
+  windows:
+    generate: true
+    image_path: "assets/icon/icon.png"
+    icon_size: 48
+
+  # ── macOS ──
+  macos:
+    generate: true
+    image_path: "assets/icon/icon.png"

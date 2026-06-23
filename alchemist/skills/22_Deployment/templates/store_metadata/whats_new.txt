@@ -1,0 +1,10 @@
+What's new in this release (max 500 characters).
+
+• New: the headline change in this version.
+• Improved: a refinement testers will notice.
+• Fixed: a notable bug fix.
+
+For fastlane supply, this becomes:
+  android/fastlane/metadata/android/<locale>/changelogs/default.txt
+or, to target a specific build:
+  android/fastlane/metadata/android/<locale>/changelogs/<versionCode>.txt

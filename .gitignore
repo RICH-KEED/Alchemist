@@ -1,0 +1,14 @@
+# Test artifacts — not part of the plugin
+test_app/
+_test_index_fixture/
+
+# Local pipeline state — generated at install time
+.flutter-pipeline/
+
+# Claude Code session files
+.claude/scheduled_tasks.json
+.claude/plans/
+
+# OS
+.DS_Store
+Thumbs.db

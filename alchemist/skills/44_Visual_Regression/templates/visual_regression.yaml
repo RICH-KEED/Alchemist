@@ -1,0 +1,79 @@
+# .github/workflows/visual_regression.yaml
+# Pixel-diff agent (skill 44): runs golden tests on every PR and uploads the
+# actual/expected/diff images as artifacts when a golden mismatches — so a
+# reviewer sees the visual delta without reproducing locally.
+#
+# Determinism: this job runs on a PINNED runner image so anti-aliasing matches
+# the committed baseline. Goldens generated elsewhere will false-fail here —
+# regenerate on this image and commit those PNGs (see skill 44 §4/§5).
+#
+# CI never runs `--update-goldens`. Updating the baseline is a human, intent-driven
+# act done in the PR that changes the UI.
+name: Visual Regression
+
+on:
+  pull_request:
+    branches: [main]
+  # Keep the baseline honest after merges to main.
+  push:
+    branches: [main]
+
+# Cancel superseded runs on the same ref to save minutes.
+concurrency:
+  group: visual-regression-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  goldens:
+    name: Golden screenshot diff
+    # Pin the image (not `-latest`) so anti-aliasing is stable across runs.
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        # Pin a known-good Flutter version; goldens are sensitive to engine changes.
+        flutter: ['3.x.x']
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: ${{ matrix.flutter }}
+          cache: true
+
+      - name: Cache pub
+        uses: actions/cache@v4
+        with:
+          path: ~/.pub-cache
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pub-
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      # If you use codegen (freezed/json/riverpod), uncomment:
+      # - name: Generate code
+      #   run: dart run build_runner build --delete-conflicting-outputs
+
+      # Fonts load via test/flutter_test_config.dart for the whole suite.
+      # No --update-goldens: this verifies against the committed baseline.
+      - name: Run golden tests
+        run: flutter test test/golden
+
+      # On a pixel mismatch Flutter writes actual/expected/diff PNGs under
+      # test/**/failures/. Upload them so the reviewer can inspect the delta.
+      - name: Upload golden failure diffs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: golden-failures
+          path: '**/failures/**'
+          if-no-files-found: ignore
+          retention-days: 14

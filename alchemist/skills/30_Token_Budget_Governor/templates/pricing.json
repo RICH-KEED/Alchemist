@@ -1,0 +1,46 @@
+{
+  "_verify": "PLACEHOLDER PRICES — DO NOT TRUST AS FACT. Verify every value against current Anthropic pricing before quoting dollars to a user or enforcing a $ ceiling. Authoritative sources: the `claude-api` skill (load it, then read shared/models.md and shared/live-sources.md → Pricing) and https://platform.claude.com/docs/en/pricing . These seeds were transcribed from the claude-api skill's cached model table (cached 2026-06-04) and WILL drift. Update `_verified_on` when you re-check.",
+  "_verified_on": "2026-06-04 (cached transcription, NOT independently confirmed)",
+  "_unit": "USD per 1,000,000 tokens",
+  "_fields": {
+    "input": "standard (uncached) input tokens",
+    "output": "output tokens",
+    "cache_write_5m": "tokens written to a 5-minute ephemeral cache (~1.25x input)",
+    "cache_write_1h": "tokens written to a 1-hour ephemeral cache (~2x input)",
+    "cache_read": "tokens served from cache (~0.1x input)",
+    "batch_discount": "multiplier applied to input+output when using the Batches API (0.5 = 50% off)"
+  },
+  "_session_model": "claude-opus-4-8 — the model this skill pipeline runs on; use it as the default for estimates unless the user pins another.",
+  "models": {
+    "claude-opus-4-8": {
+      "tier": "opus",
+      "input": 5.00,
+      "output": 25.00,
+      "cache_write_5m": 6.25,
+      "cache_write_1h": 10.00,
+      "cache_read": 0.50,
+      "batch_discount": 0.5,
+      "_note": "Session/default model. PLACEHOLDER — verify."
+    },
+    "claude-sonnet-4-6": {
+      "tier": "sonnet",
+      "input": 3.00,
+      "output": 15.00,
+      "cache_write_5m": 3.75,
+      "cache_write_1h": 6.00,
+      "cache_read": 0.30,
+      "batch_discount": 0.5,
+      "_note": "Mid tier example. PLACEHOLDER — verify."
+    },
+    "claude-haiku-4-5": {
+      "tier": "haiku",
+      "input": 1.00,
+      "output": 5.00,
+      "cache_write_5m": 1.25,
+      "cache_write_1h": 2.00,
+      "cache_read": 0.10,
+      "batch_discount": 0.5,
+      "_note": "Cheapest tier example. PLACEHOLDER — verify."
+    }
+  }
+}

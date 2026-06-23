@@ -1,0 +1,113 @@
+{
+  "_note": "Schema + file structure for #35 Skill Telemetry. The live ledger lives at `.flutter-pipeline/telemetry.json` (target app root), NOT here — this file documents its shape. Local only, no PII, no source code. Read by #30 Token_Budget_Governor (cost_model) and #28 Skill_Router (routing priors).",
+  "version": 1,
+  "$schema_record": {
+    "_doc": "One object per skill invocation. Append exactly one after each run finishes. Canonical token fields are tokens_in/tokens_out; input/output are MIRRORS so #30's estimate.py (which reads r['input']/r['output']) consumes the log unmodified.",
+    "skill_id": {
+      "type": "string",
+      "doc": "Full pipeline key matching #30 cost_model.json, e.g. '06_Flutter_Architecture'.",
+      "required": true
+    },
+    "ts": {
+      "type": "string",
+      "doc": "ISO-8601 UTC timestamp when the run finished, e.g. '2026-06-23T18:04:11Z'.",
+      "required": true
+    },
+    "outcome": {
+      "type": "string",
+      "enum": ["success", "fail", "rework"],
+      "doc": "success = gate passed first try (rework_count 0); rework = passed after redo(s); fail = abandoned/blocked.",
+      "required": true
+    },
+    "tokens_in": {
+      "type": "integer",
+      "doc": "Input tokens from response usage (include cache reads if known). >= 0.",
+      "required": true
+    },
+    "tokens_out": {
+      "type": "integer",
+      "doc": "Output tokens from usage; thinking tokens bill as output so count them. >= 0.",
+      "required": true
+    },
+    "input": {
+      "type": "integer",
+      "doc": "MIRROR of tokens_in for #30 compatibility. Write the same value.",
+      "required": true
+    },
+    "output": {
+      "type": "integer",
+      "doc": "MIRROR of tokens_out for #30 compatibility. Write the same value.",
+      "required": true
+    },
+    "duration_ms": {
+      "type": "integer",
+      "doc": "Wall-clock milliseconds end-to-end. >= 0.",
+      "required": true
+    },
+    "rework_count": {
+      "type": "integer",
+      "doc": "Number of redo loops before the run passed; 0 for a clean first pass.",
+      "required": true
+    },
+    "notes": {
+      "type": "string",
+      "doc": "Short, mechanical, optional. NO PII, NO source code, NO prompts/user text. e.g. 'gate failed once on analyzer'.",
+      "required": false,
+      "default": ""
+    }
+  },
+  "$schema_file": {
+    "_doc": "The live telemetry.json is a single object: header keys + `skills` map of skill_id -> array of records. #30 reads obj['skills'][skill_id] as a list. A flat top-level array of records is also tolerated by rollup.py, but the grouped shape below is preferred.",
+    "_note": "string — locality/no-PII reminder",
+    "version": "integer — schema version (1)",
+    "skills": {
+      "<skill_id>": "array of records (each matching $schema_record)"
+    }
+  },
+  "$example": {
+    "_note": "Local performance ledger. No PII, no source. Written by #35, read by #30/#28.",
+    "version": 1,
+    "skills": {
+      "06_Flutter_Architecture": [
+        {
+          "skill_id": "06_Flutter_Architecture",
+          "ts": "2026-06-23T18:04:11Z",
+          "outcome": "rework",
+          "tokens_in": 23110,
+          "tokens_out": 19840,
+          "input": 23110,
+          "output": 19840,
+          "duration_ms": 41200,
+          "rework_count": 1,
+          "notes": "gate failed once on analyzer warning"
+        },
+        {
+          "skill_id": "06_Flutter_Architecture",
+          "ts": "2026-06-23T19:22:05Z",
+          "outcome": "success",
+          "tokens_in": 20480,
+          "tokens_out": 17900,
+          "input": 20480,
+          "output": 17900,
+          "duration_ms": 33800,
+          "rework_count": 0,
+          "notes": ""
+        }
+      ],
+      "20_Testing": [
+        {
+          "skill_id": "20_Testing",
+          "ts": "2026-06-23T20:10:44Z",
+          "outcome": "success",
+          "tokens_in": 25600,
+          "tokens_out": 23010,
+          "input": 25600,
+          "output": 23010,
+          "duration_ms": 58700,
+          "rework_count": 0,
+          "notes": ""
+        }
+      ]
+    }
+  }
+}

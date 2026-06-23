@@ -1,0 +1,119 @@
+# Device Matrix Configuration for Firebase Test Lab
+# Use: gcloud firebase test android run --device model=<model>,version=<version>,...
+# Verify availability: gcloud firebase test android models list
+
+# ---- Tier 1: Core (every PR/commit) ----
+tier_1_core:
+  - model: redfin       # Pixel 6, API 33
+    version: 33
+    locale: en_US
+    orientation: portrait
+    notes: "Reference mid-range, current API"
+
+  - model: redfin
+    version: 33
+    locale: en_US
+    orientation: landscape
+    notes: "Landscape orientation check"
+
+  - model: grunt        # Moto G Power (2022), 2GB RAM
+    version: 30
+    locale: en_US
+    orientation: portrait
+    notes: "Low-end floor — 2GB RAM, API 30"
+
+# ---- Tier 2: Expanded (every release candidate) ----
+tier_2_expanded:
+  # Include all Tier 1 devices, plus:
+
+  - model: a51          # Samsung Galaxy A51
+    version: 34
+    locale: en_US
+    orientation: portrait
+    notes: "Samsung OEM — OneUI behavior, edge panels"
+
+  - model: tangorpro    # Pixel Tablet
+    version: 33
+    locale: en_US
+    orientation: landscape
+    notes: "Large screen tablet — 600dp+ width breakpoint"
+
+  - model: felis        # Pixel Fold (emulator)
+    version: 33
+    locale: en_US
+    orientation: portrait
+    notes: "Foldable — folded state"
+
+  - model: felis
+    version: 33
+    locale: en_US
+    orientation: landscape
+    notes: "Foldable — unfolded (tablet) state"
+
+  - model: grunt
+    version: 29         # Lowest supported API
+    locale: en_US
+    orientation: portrait
+    notes: "Absolute API floor (minSdk 23 check at 29)"
+
+# ---- Tier 3: Full matrix (major releases, e.g. 2.0) ----
+tier_3_full:
+  # Include all Tier 1 + Tier 2 devices, plus:
+
+  - model: shiba        # Pixel 8 Pro
+    version: 35
+    locale: en_US
+    orientation: portrait
+    notes: "Latest API, high-end device"
+
+  - model: gta8wifi     # Samsung Galaxy Tab A8
+    version: 34
+    locale: en_US
+    orientation: landscape
+    notes: "Samsung tablet — large screen + Samsung OEM"
+
+  - model: oriole       # Pixel 6 (API 31)
+    version: 31
+    locale: en_US
+    orientation: portrait
+    notes: "API 31 coverage"
+
+  - model: sunfish      # Pixel 4a (API 32)
+    version: 32
+    locale: en_US
+    orientation: portrait
+    notes: "API 32 coverage"
+
+  - model: redfin
+    version: 33
+    locale: ar_SA       # Arabic (RTL)
+    orientation: portrait
+    notes: "RTL locale — layout mirroring check"
+
+  - model: redfin
+    version: 33
+    locale: he_IL       # Hebrew (RTL)
+    orientation: portrait
+    notes: "RTL locale — layout mirroring check"
+
+  - model: redfin
+    version: 33
+    locale: ja_JP       # Japanese
+    orientation: portrait
+    notes: "CJK locale — font rendering, line height"
+
+# ---- CLI reference ----
+# Basic run:
+#   gcloud firebase test android run \
+#     --type instrumentation \
+#     --app app.apk \
+#     --test test.apk \
+#     --device model=redfin,version=33,locale=en_US,orientation=portrait \
+#     --timeout 15m \
+#     --results-bucket gs://PROJECT-BUCKET/test-results
+#
+# Check device availability:
+#   gcloud firebase test android models list --filter="redfin OR felis OR grunt"
+#
+# Download results:
+#   gcloud firebase test android results download --dir ./test-results

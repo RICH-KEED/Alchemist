@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "updated": "2026-01-01T00:00:00Z",
+  "updated_by": "0000000000000000000000000000000000000000",
+  "budgets": {
+    "aab_size_mb": {
+      "max": 50,
+      "warn": 40
+    },
+    "apk_per_abi_mb": {
+      "arm64-v8a": {
+        "max": 35,
+        "warn": 28
+      },
+      "armeabi-v7a": {
+        "max": 30,
+        "warn": 24
+      },
+      "x86_64": {
+        "max": 40,
+        "warn": 32
+      }
+    },
+    "cold_start_ms": {
+      "max": 500,
+      "warn": 400,
+      "reference_device": "Pixel 6a",
+      "runs": 5,
+      "discard_warmup": 2
+    },
+    "frame_build_ms_p90": {
+      "max": 16,
+      "warn": 12
+    },
+    "jank_frames_per_1000": {
+      "max": 5,
+      "warn": 2
+    },
+    "method_count": {
+      "max": 80000,
+      "warn": 65000
+    },
+    "regression_max_pct": 5.0,
+    "device_tiers": {
+      "low_end": {
+        "cold_start_ms_max": 1500,
+        "frame_build_ms_p90_max": 33
+      },
+      "mid_range": {
+        "cold_start_ms_max": 500,
+        "frame_build_ms_p90_max": 16
+      },
+      "flagship": {
+        "cold_start_ms_max": 300,
+        "frame_build_ms_p90_max": 8
+      }
+    }
+  }
+}

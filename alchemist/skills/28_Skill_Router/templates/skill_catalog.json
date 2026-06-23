@@ -1,0 +1,391 @@
+{
+  "_meta": {
+    "purpose": "Machine catalog used by scripts/route.py to pick the smallest set of skills for an ad-hoc request and expand its dependency closure. Each entry maps a skill id to trigger keywords and dependsOn[] (skills whose contracts/scaffolds it consumes).",
+    "house_style": "../../references/CONVENTIONS.md",
+    "schema": {
+      "phase": "pipeline phase A-E, or X for non-pipeline / cross-cutting (token-economy, autonomy, advanced) skills",
+      "triggers": "lowercase keyword/phrase fragments matched against the lowercased request (substring match)",
+      "dependsOn": "skill ids this one needs in place first (contracts, scaffolds, tokens). The closure is what route.py expands.",
+      "fullPipeline": "true ONLY for 01 — signals route.py to defer to the orchestrator instead of returning an ad-hoc plan"
+    },
+    "maintenance": "Keep dependsOn in sync with each skill's own 'For X use skill NN' cross-references. Skill Telemetry (#35) writes hit/miss data the router learns from over time; see SKILL.md."
+  },
+
+  "01_Master_Orchestrator": {
+    "phase": "X",
+    "fullPipeline": true,
+    "triggers": ["build me a flutter app", "build me an app", "build me a", "build a flutter app", "build an android app", "start a new app", "new project", "from idea to production", "take this app to production", "whole app", "entire app", "full pipeline", "end to end app", "ship an app"],
+    "dependsOn": []
+  },
+
+  "02_Product_Planning": {
+    "phase": "A",
+    "triggers": ["app idea", "prd", "product requirements", "personas", "user stories", "mvp", "scope the mvp", "moscow", "north star", "success metrics", "what should the first version do", "who are the users"],
+    "dependsOn": []
+  },
+  "03_UI_UX_Planning": {
+    "phase": "A",
+    "triggers": ["ux", "user experience", "information architecture", "screen inventory", "what screens", "user flows", "navigation model", "nav map", "wireframe", "low-fi", "lo-fi", "plan the ux"],
+    "dependsOn": ["02_Product_Planning"]
+  },
+  "04_Premium_Design_System": {
+    "phase": "A",
+    "triggers": ["design system", "design tokens", "theme", "theming", "themedata", "colorscheme", "material 3", "typography", "spacing scale", "light and dark", "dark mode", "looks generic", "make it premium", "premium look", "apptokens", "color scheme"],
+    "dependsOn": ["02_Product_Planning", "03_UI_UX_Planning"]
+  },
+  "05_App_Preview": {
+    "phase": "A",
+    "triggers": ["preview", "prototype", "mockup", "mock up", "show me what it'll look like", "look and feel", "design approval", "widget gallery", "device screenshots", "sign off on design"],
+    "dependsOn": ["03_UI_UX_Planning", "04_Premium_Design_System"]
+  },
+
+  "06_Flutter_Architecture": {
+    "phase": "B",
+    "triggers": ["scaffold", "project structure", "flutter create", "lib layout", "architecture", "feature module", "repository pattern", "set up the project", "create the flutter project", "di", "dependency injection skeleton"],
+    "dependsOn": ["03_UI_UX_Planning", "04_Premium_Design_System", "15_Error_Handling"]
+  },
+  "07_Navigation": {
+    "phase": "B",
+    "triggers": ["navigation", "routing", "go_router", "go router", "router", "bottom nav", "tab bar", "tabs", "route guard", "auth redirect", "deep link", "app links", "404", "shell route", "statefulshellroute"],
+    "dependsOn": ["06_Flutter_Architecture", "03_UI_UX_Planning"]
+  },
+  "08_Riverpod": {
+    "phase": "B",
+    "triggers": ["state management", "riverpod", "provider", "notifier", "asyncnotifier", "controller", "where does this state live", "screen state", "dependency injection", "ref.watch", "wire state"],
+    "dependsOn": ["06_Flutter_Architecture", "15_Error_Handling"]
+  },
+
+  "09_Animation": {
+    "phase": "C",
+    "triggers": ["animate", "animation", "transition", "shared axis", "hero", "staggered", "micro-interaction", "micro interaction", "make it smooth", "feel premium", "abrupt screen change", "press feedback", "motion", "fix the jank"],
+    "dependsOn": ["04_Premium_Design_System", "07_Navigation"]
+  },
+  "10_Asset_Management": {
+    "phase": "C",
+    "triggers": ["asset", "image", "font", "icon", "svg", "app icon", "launcher icon", "splash", "splash screen", "flutter_gen", "assets class", "cached_network_image", "app size", "why is my app so big", "adaptive icon"],
+    "dependsOn": ["06_Flutter_Architecture", "04_Premium_Design_System"]
+  },
+  "11_Backend_Integration": {
+    "phase": "C",
+    "triggers": ["backend", "api", "connect to the api", "dio", "data layer", "interceptor", "auth interceptor", "remote data source", "repository", "dto", "rest", "graphql", "firebase", "supabase", "call the backend", "wire up the repository"],
+    "dependsOn": ["06_Flutter_Architecture", "15_Error_Handling", "13_Security"]
+  },
+  "12_API_Testing": {
+    "phase": "C",
+    "triggers": ["api test", "test the api", "mock dio", "mock the network", "test my repository", "test repository", "dto parsing", "json fixtures", "pin the contract", "snapshot the api contract", "data-layer test", "data layer test"],
+    "dependsOn": ["11_Backend_Integration", "15_Error_Handling"]
+  },
+  "13_Security": {
+    "phase": "C",
+    "triggers": ["security", "secure storage", "store tokens securely", "certificate pinning", "tls pinning", "obfuscate", "obfuscation", "minification", "secrets management", "biometric", "biometrics", "masvs", "harden the app", "make the app secure"],
+    "dependsOn": ["06_Flutter_Architecture"]
+  },
+  "14_Network_Resilience": {
+    "phase": "C",
+    "triggers": ["offline", "handle offline", "retries", "retry", "backoff", "timeout", "flaky network", "bad wifi", "connectivity", "offline cache", "write queue", "circuit breaker", "requests hang", "5xx", "degrade gracefully"],
+    "dependsOn": ["11_Backend_Integration", "15_Error_Handling", "16_Loading_States"]
+  },
+  "15_Error_Handling": {
+    "phase": "C",
+    "triggers": ["error", "error handling", "handle errors", "result type", "failure type", "result", "failure", "exception mapping", "global error boundary", "error boundary", "error screen", "catch crashes", "fail without throwing", "what happens when the api fails"],
+    "dependsOn": ["06_Flutter_Architecture"]
+  },
+  "16_Loading_States": {
+    "phase": "C",
+    "triggers": ["loading state", "loading", "spinner", "skeleton", "shimmer", "empty state", "no results", "feels janky", "blank screen", "flicker", "retry button", "pull to refresh", "pagination", "load more", "optimistic update", "four states", "asyncvalue", "asyncvalueview"],
+    "dependsOn": ["08_Riverpod", "15_Error_Handling"]
+  },
+  "17_Responsive_UI": {
+    "phase": "C",
+    "triggers": ["responsive", "adaptive", "tablet", "foldable", "large screen", "window size class", "breakpoint", "layoutbuilder", "navigationrail", "master detail", "list detail", "two pane", "two-pane", "landscape", "orientation", "keyboard covers"],
+    "dependsOn": ["07_Navigation", "04_Premium_Design_System"]
+  },
+
+  "18_Documentation": {
+    "phase": "D",
+    "triggers": ["documentation", "readme", "document this", "adr", "architecture decision record", "dartdoc", "dart doc", "contributing guide", "api docs", "architecture overview"],
+    "dependsOn": ["63_Decision_Ledger"]
+  },
+  "19_GitHub_Workflow": {
+    "phase": "D",
+    "triggers": ["repo", "set up the repo", "github", "branching", "conventional commits", "pr template", "issue template", "codeowners", "gitignore", "repo hygiene", "review norms"],
+    "dependsOn": []
+  },
+  "20_Testing": {
+    "phase": "D",
+    "triggers": ["test", "tests", "write tests", "set up testing", "test strategy", "test pyramid", "widget test", "golden test", "golden", "integration test", "coverage", "coverage gate", "providerscope override", "is this feature done"],
+    "dependsOn": ["08_Riverpod", "04_Premium_Design_System", "70_Test_Generation"]
+  },
+
+  "21_CICD": {
+    "phase": "E",
+    "triggers": ["ci", "cicd", "ci/cd", "github actions", "build and test", "on every pr", "sign the aab in ci", "release on tag", "fastlane", "codemagic", "automate the build", "pipeline yaml"],
+    "dependsOn": ["20_Testing", "13_Security", "19_GitHub_Workflow", "41_Analyzer_AutoFix"]
+  },
+  "22_Deployment": {
+    "phase": "E",
+    "triggers": ["deploy", "release", "play store", "google play", "app signing", "signed app bundle", "aab", "internal track", "staged rollout", "fastlane supply", "store listing", "store metadata", "data safety form", "publish"],
+    "dependsOn": ["21_CICD", "13_Security", "23_Monitoring"]
+  },
+  "23_Monitoring": {
+    "phase": "E",
+    "triggers": ["monitoring", "observability", "crash reporting", "sentry", "crashlytics", "analytics", "track events", "screen views", "performance monitoring", "logging", "structured logging", "breadcrumb", "crashes not showing"],
+    "dependsOn": ["15_Error_Handling", "66_Analytics_Taxonomy"]
+  },
+  "24_Production_Readiness": {
+    "phase": "E",
+    "triggers": ["production readiness", "ready to launch", "ready to ship", "launch gate", "go/no-go", "go no go", "release sign-off", "final audit", "production sign-off"],
+    "dependsOn": ["20_Testing", "13_Security", "23_Monitoring", "45_Accessibility_Auditor", "59_Privacy_Data_Safety"]
+  },
+
+  "25_Context_Compression_Engine": {
+    "phase": "X",
+    "triggers": ["compress the context", "context card", "shrink the docs", "summarize the project context", "running out of context", "make context cards"],
+    "dependsOn": []
+  },
+  "26_Codebase_Semantic_Index": {
+    "phase": "X",
+    "triggers": ["index the codebase", "semantic index", "where is", "what depends on", "list all routes", "list all providers", "list all screens", "find where", "build the index"],
+    "dependsOn": []
+  },
+  "27_Diff_Scoped_Context_Loader": {
+    "phase": "X",
+    "triggers": ["diff scope", "what changed", "scope to the diff", "files in this change", "load only changed files", "review this diff context"],
+    "dependsOn": ["26_Codebase_Semantic_Index"]
+  },
+  "28_Skill_Router": {
+    "phase": "X",
+    "triggers": ["which skills", "route this request", "minimal skill set", "skill router", "plan the skills", "what skills do i need"],
+    "dependsOn": ["35_Skill_Telemetry"]
+  },
+  "30_Token_Budget_Governor": {
+    "phase": "X",
+    "triggers": ["budget", "cost", "how much will this cost", "token cost", "cost cap", "estimate cost", "spend ceiling", "predict cost"],
+    "dependsOn": ["35_Skill_Telemetry"]
+  },
+  "32_Autonomous_Maintenance": {
+    "phase": "X",
+    "triggers": ["maintenance", "maintenance pr", "routine upkeep", "auto maintain", "keep deps current", "housekeeping pr"],
+    "dependsOn": ["56_Dependency_Health_Monitor", "41_Analyzer_AutoFix", "20_Testing"]
+  },
+  "33_Self_Healing_CI": {
+    "phase": "X",
+    "triggers": ["ci is red", "ci failing", "self heal ci", "fix the failing build", "ci job failed", "broken pipeline", "auto fix ci"],
+    "dependsOn": ["37_Build_Doctor", "41_Analyzer_AutoFix", "20_Testing", "21_CICD"]
+  },
+  "34_Crash_Free_Watchdog": {
+    "phase": "X",
+    "triggers": ["crash free rate", "crash spike", "crash watchdog", "stability dropped", "crash regression", "watch crashes"],
+    "dependsOn": ["23_Monitoring", "38_Runtime_Exception_Triage"]
+  },
+  "35_Skill_Telemetry": {
+    "phase": "X",
+    "triggers": ["telemetry", "skill telemetry", "which skills get used", "skill usage data", "router accuracy", "skill hit rate"],
+    "dependsOn": []
+  },
+  "36_Codebase_Onboarding": {
+    "phase": "X",
+    "triggers": ["onboard", "onboarding to the codebase", "explain this codebase", "unfamiliar app", "give me the lay of the land", "how is this app structured"],
+    "dependsOn": ["26_Codebase_Semantic_Index"]
+  },
+  "37_Build_Doctor": {
+    "phase": "X",
+    "triggers": ["build failed", "build is red", "build red", "build broke", "build error", "won't compile", "wont compile", "gradle error", "namespace not specified", "could not resolve", "version solving failed", "minsdk", "multidex", "r8", "proguard", "pod install failed", "agp", "kotlin version", "jdk", "unsupported class file"],
+    "dependsOn": []
+  },
+  "38_Runtime_Exception_Triage": {
+    "phase": "X",
+    "triggers": ["exception", "stack trace", "runtime error", "app crashed", "null check operator", "triage this crash", "what threw this", "rangeerror", "late initialization"],
+    "dependsOn": ["26_Codebase_Semantic_Index", "15_Error_Handling"]
+  },
+  "39_Performance_Profiler": {
+    "phase": "X",
+    "triggers": ["performance", "profile", "slow", "jank", "frame drops", "dropped frames", "rebuild storm", "shader jank", "startup time", "memory usage", "why is it slow"],
+    "dependsOn": ["26_Codebase_Semantic_Index"]
+  },
+  "40_State_Leak_Auditor": {
+    "phase": "X",
+    "triggers": ["state leak", "memory leak", "provider not disposed", "leak", "stale state", "dangling listener", "controller not disposed", "ref leak"],
+    "dependsOn": ["08_Riverpod", "26_Codebase_Semantic_Index"]
+  },
+  "41_Analyzer_AutoFix": {
+    "phase": "X",
+    "triggers": ["fix analyzer", "make analyze pass", "clean up lints", "zero warnings", "flutter analyze", "dart fix", "lint errors", "analyzer warnings"],
+    "dependsOn": []
+  },
+  "42_Architecture_Debate": {
+    "phase": "X",
+    "triggers": ["architecture debate", "trade-off", "tradeoff", "which approach", "weigh options", "design decision", "should i use x or y", "compare approaches"],
+    "dependsOn": ["63_Decision_Ledger"]
+  },
+  "43_Design_Critic": {
+    "phase": "X",
+    "triggers": ["critique this screen", "review the ui", "design review", "looks off", "looks cheap", "is this premium", "design qa", "what's wrong with this layout"],
+    "dependsOn": ["04_Premium_Design_System"]
+  },
+  "44_Visual_Regression": {
+    "phase": "X",
+    "triggers": ["visual regression", "screenshot diff", "ui changed unexpectedly", "golden diff", "pixel diff", "visual diff", "did the ui change"],
+    "dependsOn": ["20_Testing", "04_Premium_Design_System"]
+  },
+  "45_Accessibility_Auditor": {
+    "phase": "X",
+    "triggers": ["accessibility", "a11y", "semantics", "screen reader", "talkback", "contrast", "touch target", "wcag", "accessible"],
+    "dependsOn": ["04_Premium_Design_System"]
+  },
+  "46_Figma_Bridge": {
+    "phase": "X",
+    "triggers": ["figma", "import from figma", "figma to flutter", "figma tokens", "sync design from figma"],
+    "dependsOn": ["04_Premium_Design_System"]
+  },
+  "47_Screenshot_To_Widget": {
+    "phase": "X",
+    "triggers": ["screenshot to widget", "build this from a screenshot", "turn this image into a widget", "recreate this ui", "image to flutter"],
+    "dependsOn": ["04_Premium_Design_System", "16_Loading_States"]
+  },
+  "48_Motion_Critic": {
+    "phase": "X",
+    "triggers": ["motion critique", "review the animation", "is this animation good", "motion feels off", "animation timing", "critique the motion"],
+    "dependsOn": ["09_Animation"]
+  },
+  "49_OpenAPI_Dart_Generator": {
+    "phase": "X",
+    "triggers": ["openapi", "swagger", "generate dart from openapi", "generate the client", "api spec to dart", "codegen the api client"],
+    "dependsOn": ["11_Backend_Integration", "15_Error_Handling"]
+  },
+  "50_Localization_i18n": {
+    "phase": "X",
+    "triggers": ["localization", "localize", "i18n", "l10n", "translations", "arb", "multiple languages", "intl", "rtl"],
+    "dependsOn": ["06_Flutter_Architecture", "04_Premium_Design_System"]
+  },
+  "51_DB_Migration_Generator": {
+    "phase": "X",
+    "triggers": ["db migration", "database migration", "drift migration", "isar migration", "schema change", "migrate the database", "alter table"],
+    "dependsOn": ["06_Flutter_Architecture"]
+  },
+  "52_Push_Notifications": {
+    "phase": "X",
+    "triggers": ["push notification", "push", "fcm", "firebase messaging", "notifications", "remote notification", "notification permission"],
+    "dependsOn": ["06_Flutter_Architecture", "13_Security", "07_Navigation"]
+  },
+  "53_Background_Sync": {
+    "phase": "X",
+    "triggers": ["background sync", "workmanager", "background task", "sync in background", "periodic sync", "offline sync queue"],
+    "dependsOn": ["11_Backend_Integration", "14_Network_Resilience"]
+  },
+  "54_Feature_Flags": {
+    "phase": "X",
+    "triggers": ["feature flag", "feature flags", "remote config", "kill switch", "rollout flag", "toggle a feature", "gating"],
+    "dependsOn": ["08_Riverpod", "11_Backend_Integration"]
+  },
+  "55_Form_Engine": {
+    "phase": "X",
+    "triggers": ["form", "login form", "signup form", "sign up form", "registration form", "form validation", "validate input", "text fields", "form field", "input field", "checkout form", "form state"],
+    "dependsOn": ["07_Navigation", "08_Riverpod", "15_Error_Handling", "16_Loading_States", "04_Premium_Design_System"]
+  },
+  "56_Dependency_Health_Monitor": {
+    "phase": "X",
+    "triggers": ["dependency health", "check my dependencies", "audit pubspec", "is package x safe", "abandoned package", "what should i upgrade", "vulnerable packages", "outdated deps"],
+    "dependsOn": []
+  },
+  "57_Package_Recommendation": {
+    "phase": "X",
+    "triggers": ["which package", "recommend a package", "best package for", "what library should i use", "package for x", "pick a dependency"],
+    "dependsOn": ["56_Dependency_Health_Monitor"]
+  },
+  "58_Compliance_SBOM": {
+    "phase": "X",
+    "triggers": ["sbom", "software bill of materials", "license compliance", "license audit", "third party licenses", "compliance report"],
+    "dependsOn": ["56_Dependency_Health_Monitor"]
+  },
+  "59_Privacy_Data_Safety": {
+    "phase": "X",
+    "triggers": ["privacy", "data safety", "data safety form", "privacy policy", "gdpr", "consent", "pii", "what data we collect", "play data safety"],
+    "dependsOn": ["66_Analytics_Taxonomy", "13_Security"]
+  },
+  "60_Threat_Modeling": {
+    "phase": "X",
+    "triggers": ["threat model", "threat modeling", "stride", "attack surface", "security review", "what could go wrong", "abuse cases"],
+    "dependsOn": ["13_Security"]
+  },
+  "61_Secrets_Scanner": {
+    "phase": "X",
+    "triggers": ["secrets scan", "scan for secrets", "leaked key", "hardcoded secret", "api key in repo", "credential leak", "gitleaks"],
+    "dependsOn": ["13_Security"]
+  },
+  "62_White_Label_Engine": {
+    "phase": "X",
+    "triggers": ["white label", "white-label", "flavors", "build flavors", "reskin", "multi-brand", "per-brand", "theme per client"],
+    "dependsOn": ["04_Premium_Design_System", "10_Asset_Management"]
+  },
+  "63_Decision_Ledger": {
+    "phase": "X",
+    "triggers": ["decision ledger", "record this decision", "decision log", "why did we choose", "track decisions", "adr ledger"],
+    "dependsOn": []
+  },
+  "64_App_Store_Optimization": {
+    "phase": "X",
+    "triggers": ["aso", "app store optimization", "store listing copy", "keywords for the store", "screenshots for the store", "improve store ranking"],
+    "dependsOn": ["02_Product_Planning"]
+  },
+  "65_Changelog_Generator": {
+    "phase": "X",
+    "triggers": ["changelog", "release notes", "generate the changelog", "what changed this release", "what's new"],
+    "dependsOn": ["19_GitHub_Workflow"]
+  },
+  "66_Analytics_Taxonomy": {
+    "phase": "X",
+    "triggers": ["analytics taxonomy", "event naming", "tracking plan", "define events", "analytics schema", "event spec"],
+    "dependsOn": ["02_Product_Planning"]
+  },
+  "67_AB_Experiment": {
+    "phase": "X",
+    "triggers": ["a/b test", "ab test", "experiment", "split test", "variant test", "run an experiment"],
+    "dependsOn": ["54_Feature_Flags", "66_Analytics_Taxonomy"]
+  },
+  "68_Performance_Budget": {
+    "phase": "X",
+    "triggers": ["performance budget", "perf budget", "startup budget", "frame budget", "size budget", "enforce performance threshold"],
+    "dependsOn": ["39_Performance_Profiler"]
+  },
+  "69_Device_Matrix": {
+    "phase": "X",
+    "triggers": ["device matrix", "which devices to test", "device coverage", "test on real devices", "firebase test lab", "device lab"],
+    "dependsOn": ["20_Testing"]
+  },
+  "70_Test_Generation": {
+    "phase": "X",
+    "triggers": ["generate tests", "write tests for", "cover this controller", "cover this repository", "cover this screen", "fill the coverage gap", "test this notifier"],
+    "dependsOn": ["08_Riverpod", "12_API_Testing", "20_Testing"]
+  },
+  "71_Mutation_Testing": {
+    "phase": "X",
+    "triggers": ["mutation testing", "mutation score", "are my tests meaningful", "kill mutants", "test quality"],
+    "dependsOn": ["20_Testing"]
+  },
+  "72_Contract_Golden_Drift": {
+    "phase": "X",
+    "triggers": ["contract drift", "golden drift", "api contract changed", "golden out of date", "contract test broke", "drift detection"],
+    "dependsOn": ["12_API_Testing", "20_Testing"]
+  },
+  "73_Regression_Memory": {
+    "phase": "X",
+    "triggers": ["regression memory", "we've seen this bug", "past regressions", "remember this fix", "recurring bug", "known regression"],
+    "dependsOn": ["38_Runtime_Exception_Triage", "20_Testing"]
+  },
+  "74_Chaos_Resilience": {
+    "phase": "X",
+    "triggers": ["chaos testing", "chaos", "fault injection", "resilience test", "inject failures", "kill the network mid-request"],
+    "dependsOn": ["14_Network_Resilience", "20_Testing"]
+  },
+  "75_User_Onboarding_And_Coach_Marks": {
+    "phase": "X",
+    "triggers": ["user onboarding", "coach marks", "feature tour", "showcase", "walkthrough", "highlight the fab", "first-run experience", "tutorial overlay", "intro flow"],
+    "dependsOn": ["03_UI_UX_Planning", "04_Premium_Design_System", "07_Navigation", "08_Riverpod"]
+  },
+  "76_Cross_Project_Pattern_Library": {
+    "phase": "X",
+    "triggers": ["pattern library", "reuse across projects", "shared patterns", "extract a pattern", "cross-project", "house pattern"],
+    "dependsOn": ["63_Decision_Ledger"]
+  }
+}

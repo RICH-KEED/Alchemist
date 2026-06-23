@@ -1,0 +1,14 @@
+{
+  "fields": [
+    {"name":"full_name","type":"text","label":"Full Name","required":true,"validators":["required","min_length:2"],"placeholder":"Jane Doe"},
+    {"name":"email","type":"email","label":"Email Address","required":true,"validators":["required","email"],"placeholder":"jane@example.com"},
+    {"name":"password","type":"text","label":"Password","required":true,"validators":["required","min_length:8","regex:^(?=.*[A-Z])(?=.*\\d)"],"hint":"Min 8 chars, one uppercase and one digit"},
+    {"name":"confirm_password","type":"text","label":"Confirm Password","required":true,"validators":["required","matches:password"]},
+    {"name":"country","type":"dropdown","label":"Country","required":true,"validators":["required"],"options":["US","Canada","UK","Australia","Germany","India","Japan","Brazil","Other"]},
+    {"name":"agree_tos","type":"toggle","label":"I agree to the Terms of Service","required":true,"validators":["required","must_be_true"]},
+    {"name":"bio","type":"text","label":"Short Bio","required":false,"validators":["max_length:500"],"placeholder":"Tell us about yourself...","hint":"Optional — up to 500 chars"},
+    {"name":"interests","type":"multiselect","label":"Interests","required":false,"validators":["min_selection:1","max_selection:5"],"options":["Tech","Design","Business","Music","Sports","Travel","Food","Art"]},
+    {"name":"birth_date","type":"date","label":"Date of Birth","required":false,"validators":["date_before:today"]},
+    {"name":"phone","type":"phone","label":"Phone Number","required":false,"validators":["phone"],"placeholder":"+1 (555) 000-0000"}
+  ]
+}

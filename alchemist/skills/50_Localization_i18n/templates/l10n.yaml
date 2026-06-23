@@ -1,0 +1,29 @@
+# l10n.yaml — Flutter gen-l10n configuration (project root)
+# House style: ../../references/CONVENTIONS.md (strings tokenized, never hardcoded).
+# Docs: https://docs.flutter.dev/ui/accessibility-and-internationalization/internationalization
+#
+# Requires in pubspec.yaml:
+#   dependencies: { flutter_localizations: { sdk: flutter }, intl: any }
+#   flutter: { generate: true }
+# Then run:  flutter gen-l10n   (also runs automatically on `flutter pub get`/build)
+
+# Where the .arb translation files live (template + per-locale).
+arb-dir: lib/l10n
+
+# The template/source-of-truth locale. Every other app_<locale>.arb mirrors its keys.
+template-arb-file: app_en.arb
+
+# Name of the generated Dart file and class the UI reads strings from.
+output-localization-file: app_localizations.dart
+output-class: AppLocalizations
+
+# Emit into the package's synthetic output (imported as
+# 'package:flutter_gen/gen_l10n/app_localizations.dart'). Set to false +
+# `output-dir: lib/l10n/generated` if you prefer committed, importable sources.
+synthetic-package: true
+
+# Generate a getter for the list of supported locales on AppLocalizations.
+nullable-getter: false
+
+# Helpful during a migration: surface keys missing from non-template locales.
+untranslated-messages-file: lib/l10n/untranslated.json

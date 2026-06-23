@@ -1,0 +1,65 @@
+{
+  "@@locale": "en",
+
+  "appTitle": "Acme Shop",
+  "@appTitle": {
+    "description": "The application name shown in the title bar and app switcher."
+  },
+
+  "greeting": "Hello, {name}!",
+  "@greeting": {
+    "description": "Welcome message on the home screen; {name} is the signed-in user's first name.",
+    "placeholders": {
+      "name": { "type": "String", "example": "Sam" }
+    }
+  },
+
+  "cartItemCount": "{count, plural, =0{Your cart is empty} one{1 item in cart} other{{count} items in cart}}",
+  "@cartItemCount": {
+    "description": "Badge/summary for the shopping cart. Translators must supply every plural category their language uses (zero/one/two/few/many/other).",
+    "placeholders": {
+      "count": { "type": "int", "example": "3" }
+    }
+  },
+
+  "invitedYou": "{gender, select, male{He} female{She} other{They}} invited you to {team}",
+  "@invitedYou": {
+    "description": "Notification text. {gender} selects the pronoun; {team} is the team name.",
+    "placeholders": {
+      "gender": { "type": "String", "example": "female" },
+      "team":   { "type": "String", "example": "Design" }
+    }
+  },
+
+  "lastUpdated": "Updated {date}",
+  "@lastUpdated": {
+    "description": "Timestamp label. {date} is formatted locale-aware via intl DateFormat.",
+    "placeholders": {
+      "date": { "type": "DateTime", "format": "yMMMd", "example": "Jun 23, 2026" }
+    }
+  },
+
+  "totalPrice": "Total: {amount}",
+  "@totalPrice": {
+    "description": "Order total. {amount} is a locale-aware currency value.",
+    "placeholders": {
+      "amount": {
+        "type": "double",
+        "format": "currency",
+        "optionalParameters": { "symbol": "$", "decimalDigits": 2 },
+        "example": "$19.99"
+      }
+    }
+  },
+
+  "primaryCtaLabel": "Continue",
+  "@primaryCtaLabel": {
+    "description": "Label for the primary call-to-action button. Named by intent, not wording, so the English text can change without renaming the key."
+  },
+
+  "machineSampleNeedsReview": "Proceed to checkout",
+  "@machineSampleNeedsReview": {
+    "description": "Example of a machine-pre-translated value flagged for human review in non-template locales.",
+    "x-needs-review": true
+  }
+}

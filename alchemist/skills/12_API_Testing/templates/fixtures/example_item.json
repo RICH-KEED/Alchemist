@@ -1,0 +1,10 @@
+{
+  "id": "a1b2c3",
+  "title": "Flutter 3 ships impeller by default",
+  "summary": "The rendering engine is now stable on Android.",
+  "author": "Jane Doe",
+  "tags": ["flutter", "android", "release"],
+  "published_at": "2026-05-12T09:30:00Z",
+  "read_time_minutes": 4,
+  "is_premium": false
+}

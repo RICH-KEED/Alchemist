@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  PrivacyInfo.xcprivacy — example iOS privacy manifest for a Flutter app.
+
+  Place at: ios/Runner/PrivacyInfo.xcprivacy  (add it to the Runner target in Xcode).
+  This is a DRAFT generated from declared SDKs/permissions. A human MUST verify every
+  entry against actual app behavior before submitting — over-declaring is safe, under-
+  declaring or omitting a required-reason API is a hard App Store rejection (since 2024).
+
+  Four required-by-Apple keys:
+    NSPrivacyTracking            — true only if the app tracks (links data across apps/
+                                   sites for ads, or shares device IDs with a data broker).
+    NSPrivacyTrackingDomains     — every domain that performs tracking (ATT must precede them).
+    NSPrivacyCollectedDataTypes  — the Apple nutrition-label data types collected.
+    NSPrivacyAccessedAPITypes    — required-reason APIs your code/SDKs call, with reason codes.
+
+  The example below assumes: analytics + crashlytics + an ads SDK + auth + shared_preferences
+  + path_provider + device_info_plus. DELETE the blocks that don't apply to your app.
+-->
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+
+  <!-- ====== Tracking ====== -->
+  <!-- true because an ads/attribution SDK shares a device ID with an ad network.
+       Set false (and empty the domains array) if you have NO ads/attribution SDK. -->
+  <key>NSPrivacyTracking</key>
+  <true/>
+
+  <key>NSPrivacyTrackingDomains</key>
+  <array>
+    <!-- List every tracking domain. Verify the real endpoints of your ad/attribution SDK. -->
+    <string>googleadservices.com</string>
+    <string>app-measurement.com</string>
+    <!-- <string>appsflyer.com</string> -->
+  </array>
+
+  <!-- ====== Collected data types ====== -->
+  <key>NSPrivacyCollectedDataTypes</key>
+  <array>
+
+    <!-- Email address (from auth/sign-in) -->
+    <dict>
+      <key>NSPrivacyCollectedDataType</key>
+      <string>NSPrivacyCollectedDataTypeEmailAddress</string>
+      <key>NSPrivacyCollectedDataTypeLinked</key>
+      <true/>
+      <key>NSPrivacyCollectedDataTypeTracking</key>
+      <false/>
+      <key>NSPrivacyCollectedDataTypePurposes</key>
+      <array>
+        <string>NSPrivacyCollectedDataTypePurposeAppFunctionality</string>
+      </array>
+    </dict>
+
+    <!-- Device ID (analytics + ads) — linked & used for tracking when ads present -->
+    <dict>
+      <key>NSPrivacyCollectedDataType</key>
+      <string>NSPrivacyCollectedDataTypeDeviceID</string>
+      <key>NSPrivacyCollectedDataTypeLinked</key>
+      <true/>
+      <key>NSPrivacyCollectedDataTypeTracking</key>
+      <true/>
+      <key>NSPrivacyCollectedDataTypePurposes</key>
+      <array>
+        <string>NSPrivacyCollectedDataTypePurposeThirdPartyAdvertising</string>
+        <string>NSPrivacyCollectedDataTypePurposeAnalytics</string>
+      </array>
+    </dict>
+
+    <!-- Product interaction (analytics events / screen views) -->
+    <dict>
+      <key>NSPrivacyCollectedDataType</key>
+      <string>NSPrivacyCollectedDataTypeProductInteraction</string>
+      <key>NSPrivacyCollectedDataTypeLinked</key>
+      <false/>
+      <key>NSPrivacyCollectedDataTypeTracking</key>
+      <false/>
+      <key>NSPrivacyCollectedDataTypePurposes</key>
+      <array>
+        <string>NSPrivacyCollectedDataTypePurposeAnalytics</string>
+      </array>
+    </dict>
+
+    <!-- Crash data (Crashlytics / Sentry) -->
+    <dict>
+      <key>NSPrivacyCollectedDataType</key>
+      <string>NSPrivacyCollectedDataTypeCrashData</string>
+      <key>NSPrivacyCollectedDataTypeLinked</key>
+      <false/>
+      <key>NSPrivacyCollectedDataTypeTracking</key>
+      <false/>
+      <key>NSPrivacyCollectedDataTypePurposes</key>
+      <array>
+        <string>NSPrivacyCollectedDataTypePurposeAppFunctionality</string>
+      </array>
+    </dict>
+
+    <!-- Performance data -->
+    <dict>
+      <key>NSPrivacyCollectedDataType</key>
+      <string>NSPrivacyCollectedDataTypePerformanceData</string>
+      <key>NSPrivacyCollectedDataTypeLinked</key>
+      <false/>
+      <key>NSPrivacyCollectedDataTypeTracking</key>
+      <false/>
+      <key>NSPrivacyCollectedDataTypePurposes</key>
+      <array>
+        <string>NSPrivacyCollectedDataTypePurposeAnalytics</string>
+      </array>
+    </dict>
+
+    <!-- Precise location — include ONLY if you collect & send location off-device.
+    <dict>
+      <key>NSPrivacyCollectedDataType</key>
+      <string>NSPrivacyCollectedDataTypePreciseLocation</string>
+      <key>NSPrivacyCollectedDataTypeLinked</key>
+      <true/>
+      <key>NSPrivacyCollectedDataTypeTracking</key>
+      <false/>
+      <key>NSPrivacyCollectedDataTypePurposes</key>
+      <array>
+        <string>NSPrivacyCollectedDataTypePurposeAppFunctionality</string>
+      </array>
+    </dict>
+    -->
+
+  </array>
+
+  <!-- ====== Required-reason APIs ====== -->
+  <!-- Declare each API category your code OR a plugin uses, with an approved reason code.
+       See templates/data_safety_mapping.md §3 for the plugin → category map. -->
+  <key>NSPrivacyAccessedAPITypes</key>
+  <array>
+
+    <!-- UserDefaults — triggered by shared_preferences -->
+    <dict>
+      <key>NSPrivacyAccessedAPIType</key>
+      <string>NSPrivacyAccessedAPICategoryUserDefaults</string>
+      <key>NSPrivacyAccessedAPITypeReasons</key>
+      <array>
+        <string>CA92.1</string>
+      </array>
+    </dict>
+
+    <!-- File timestamp — triggered by path_provider / sqflite / hive -->
+    <dict>
+      <key>NSPrivacyAccessedAPIType</key>
+      <string>NSPrivacyAccessedAPICategoryFileTimestamp</string>
+      <key>NSPrivacyAccessedAPITypeReasons</key>
+      <array>
+        <string>C617.1</string>
+      </array>
+    </dict>
+
+    <!-- System boot time — triggered by device_info_plus / package_info_plus -->
+    <dict>
+      <key>NSPrivacyAccessedAPIType</key>
+      <string>NSPrivacyAccessedAPICategorySystemBootTime</string>
+      <key>NSPrivacyAccessedAPITypeReasons</key>
+      <array>
+        <string>35F9.1</string>
+      </array>
+    </dict>
+
+    <!-- Disk space — include if you check free space or use file pickers.
+    <dict>
+      <key>NSPrivacyAccessedAPIType</key>
+      <string>NSPrivacyAccessedAPICategoryDiskSpace</string>
+      <key>NSPrivacyAccessedAPITypeReasons</key>
+      <array>
+        <string>E174.1</string>
+      </array>
+    </dict>
+    -->
+
+  </array>
+
+</dict>
+</plist>

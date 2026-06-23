@@ -1,0 +1,111 @@
+# Brand Configuration Matrix
+# Each brand becomes a separate Flutter flavor with its own applicationId,
+# Material 3 theme, assets, endpoints, features, and signing identity.
+#
+# Validation rules:
+# - bundle_id_suffix must be unique across all brands
+# - color seeds are hex strings compatible with ColorScheme.fromSeed
+# - icon_path and splash_path are relative to assets/<flavor>/
+
+brands:
+  acmepro:
+    display_name: "AcmePro"
+    bundle_id_suffix: "acmepro"
+    version_name_override: null  # uses global version from pubspec.yaml
+
+    colors:
+      primary: "0xFF1565C0"     # Blue 800
+      secondary: "0xFF00897B"   # Teal 600
+      tertiary: "0xFFEF6C00"    # Orange 800
+
+    assets:
+      icon_path: "assets/acmepro/icon/ic_launcher.png"
+      splash_path: "assets/acmepro/splash/splash.png"
+
+    endpoints:
+      api_base_url: "https://api.acmepro.example.com/v1"
+      auth_domain: "auth.acmepro.example.com"
+
+    features:
+      offline_sync: true
+      analytics_opt_in: true
+      social_sharing: false
+      dark_mode_toggle: true
+      in_app_purchases: true
+
+    legal:
+      privacy_url: "https://www.acmepro.example.com/privacy"
+      terms_url: "https://www.acmepro.example.com/terms"
+      support_email: "support@acmepro.example.com"
+
+    signing:
+      keystore_path: "keystores/acmepro.keystore"
+      keystore_alias: "acmepro-key"
+
+  globexapp:
+    display_name: "GlobexApp"
+    bundle_id_suffix: "globexapp"
+    version_name_override: "2.0.0"  # launch version override
+
+    colors:
+      primary: "0xFF4A148C"     # Purple 900
+      secondary: "0xFF00BFA5"    # Teal Accent 400
+      tertiary: "0xFFD50000"     # Red Accent 700
+
+    assets:
+      icon_path: "assets/globexapp/icon/ic_launcher.png"
+      splash_path: "assets/globexapp/splash/splash.png"
+
+    endpoints:
+      api_base_url: "https://api.globex.example.com/v2"
+      auth_domain: "auth.globex.example.com"
+
+    features:
+      offline_sync: false
+      analytics_opt_in: false
+      social_sharing: true
+      dark_mode_toggle: true
+      in_app_purchases: false
+
+    legal:
+      privacy_url: "https://globex.example.com/legal/privacy"
+      terms_url: "https://globex.example.com/legal/terms"
+      support_email: "help@globex.example.com"
+
+    signing:
+      keystore_path: "keystores/globexapp.keystore"
+      keystore_alias: "globexapp-key"
+
+  initechmobile:
+    display_name: "InitechMobile"
+    bundle_id_suffix: "initech"
+    version_name_override: null
+
+    colors:
+      primary: "0xFF1B5E20"     # Green 900
+      secondary: "0xFF0277BD"   # Light Blue 800
+      tertiary: "0xFFF9A825"    # Yellow 800
+
+    assets:
+      icon_path: "assets/initechmobile/icon/ic_launcher.png"
+      splash_path: "assets/initechmobile/splash/splash.png"
+
+    endpoints:
+      api_base_url: "https://api.initech.example.com/v1"
+      auth_domain: "auth.initech.example.com"
+
+    features:
+      offline_sync: true
+      analytics_opt_in: true
+      social_sharing: true
+      dark_mode_toggle: false
+      in_app_purchases: true
+
+    legal:
+      privacy_url: "https://www.initech.example.com/privacy-policy"
+      terms_url: "https://www.initech.example.com/terms-of-service"
+      support_email: "support@initech.example.com"
+
+    signing:
+      keystore_path: "keystores/initechmobile.keystore"
+      keystore_alias: "initech-key"

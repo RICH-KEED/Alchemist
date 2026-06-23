@@ -1,0 +1,137 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://flutter-android.skills/patterns.schema.json",
+  "title": "Cross-Project Pattern Entry",
+  "description": "Schema for a single pattern entry in ~/.flutter-pipeline/patterns.json. Each entry captures a proven, reusable solution with its context, solution narrative, disqualifying conditions, and project evidence.",
+  "type": "object",
+  "required": [
+    "id",
+    "problem",
+    "context_tags",
+    "solution_summary",
+    "full_solution",
+    "when_not",
+    "example_code",
+    "projects_used",
+    "confidence"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique, stable key for the pattern. Lowercase, hyphenated, concise. Examples: 'optimistic-toggle-rollback', 'offline-queue-with-drift', 'error-boundary-fallback-widget'. Once assigned, never change — cross-project references depend on it.",
+      "pattern": "^[a-z][a-z0-9-]*[a-z0-9]$",
+      "minLength": 3,
+      "maxLength": 64
+    },
+    "problem": {
+      "type": "string",
+      "description": "The recurring situation this pattern solves. Written as a concrete condition a developer would recognize: 'When the user toggles a state (favorite, read/unread) and the network round-trip causes visible lag that makes the UI feel broken.' Be specific enough that a search can match it.",
+      "minLength": 30,
+      "maxLength": 500
+    },
+    "context_tags": {
+      "type": "array",
+      "description": "Categorization tags used by the query engine for matching. Prefer two-word tags: first word is the concern area, second is the sub-concern. Examples: ['state', 'network', 'mutation', 'optimistic', 'riverpod', 'error', 'rollback'].",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z][a-z_-]*[a-z]$",
+        "minLength": 2,
+        "maxLength": 32
+      },
+      "minItems": 2,
+      "maxItems": 15,
+      "uniqueItems": true
+    },
+    "solution_summary": {
+      "type": "string",
+      "description": "A single sentence that captures the pattern's essence. A developer should understand the approach from this alone. Example: 'Show the toggled state immediately (optimistic), persist in background with AsyncValue.guard, and roll back to the previous state on failure with the error surfaced as AsyncError.'",
+      "minLength": 20,
+      "maxLength": 300
+    },
+    "full_solution": {
+      "type": "string",
+      "description": "The canonical implementation narrative — not copy-paste code, but the structure, the contracts, the why. Reference owning skill templates by path (e.g. 'see skill 08 templates/example_controller.dart for the controller shape'). Describe: (1) the setup — what providers/services must exist, (2) the flow — step-by-step what happens on the happy path, (3) the failure handling — exactly how errors are caught and surfaced, (4) the contracts — which Result/Failure types are produced and consumed. When the pattern is promoted to 'established' and moved into a skill template, shorten this to a pointer.",
+      "minLength": 50,
+      "maxLength": 4000
+    },
+    "when_not": {
+      "type": "string",
+      "description": "Conditions that DISQUALIFY this pattern. The most important guardrail field. List concrete scenarios where applying this pattern would be wrong. Example: 'Do NOT use for mutations that are not safely reversible — payments, deletes, permission grants. Do NOT use when the mutation is async-but-fast (<50ms) and the optimistic flicker is more distracting than a spinner. Do NOT use when the UI needs server-authoritative state immediately (e.g. stock quantities, available seats).'",
+      "minLength": 30,
+      "maxLength": 1000
+    },
+    "example_code": {
+      "type": "string",
+      "description": "A key code snippet (10-30 lines) showing the pattern's characteristic shape. Not a full implementation — just the signature move. Prefer Dart code blocks with brief line comments pointing at the pattern-specific parts.",
+      "minLength": 5,
+      "maxLength": 2000
+    },
+    "projects_used": {
+      "type": "array",
+      "description": "List of projects (and their pipeline stages) where this pattern was applied and proved. Each entry is an object with the project name ('name'), the stage number where it was used ('stage'), and the date applied ('date'). This builds the evidence trail for confidence promotion.",
+      "items": {
+        "type": "object",
+        "required": ["name", "stage", "date"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the project that used this pattern.",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "stage": {
+            "type": "integer",
+            "description": "The pipeline stage number where the pattern was applied (e.g. 8 for Riverpod).",
+            "minimum": 1,
+            "maximum": 76
+          },
+          "date": {
+            "type": "string",
+            "description": "ISO 8601 date (YYYY-MM-DD) when the pattern was applied in this project.",
+            "format": "date"
+          }
+        }
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "confidence": {
+      "type": "string",
+      "enum": ["proposed", "emerging", "established"],
+      "description": "Evidence level. 'proposed' = 1 project, use as suggestion only. 'emerging' = 2-3 projects, likely transferable. 'established' = 4+ projects, may be promoted into a skill template."
+    },
+    "date_captured": {
+      "type": "string",
+      "format": "date",
+      "description": "ISO 8601 date (YYYY-MM-DD) when the pattern was first added to the library."
+    },
+    "last_updated": {
+      "type": "string",
+      "format": "date",
+      "description": "ISO 8601 date (YYYY-MM-DD) of the most recent modification to this entry."
+    },
+    "related_patterns": {
+      "type": "array",
+      "description": "IDs of other patterns this one composes with, depends on, or supersedes. Cross-references make the library a graph, not a list.",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9-]*[a-z0-9]$"
+      },
+      "uniqueItems": true
+    },
+    "owned_by_skill": {
+      "type": "integer",
+      "description": "When confidence is 'established', the skill number (2-76) that owns the canonical template. Set when the pattern is promoted into a skill's templates/ folder.",
+      "minimum": 2,
+      "maximum": 76
+    },
+    "prerequisites": {
+      "type": "array",
+      "description": "What must exist before this pattern can be applied. Framework versions, skill stage completions, specific packages. Examples: ['Riverpod 2.x', 'skill 08 completed', 'skill 15 Result types present'].",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    }
+  }
+}

@@ -1,0 +1,80 @@
+# Autonomous Maintenance Configuration
+# Tune cadence, scope, and safety knobs here.
+# The agent reads this file at the start of every sweep.
+
+# ── Cadence ──────────────────────────────────────────────
+cadence:
+  weekly:
+    enabled: true
+    cron: "0 8 * * 1"          # Monday 8 AM UTC
+    description: "Standard dep bump + analyze + test"
+    major_upgrades: false       # weekly does NOT do --major-versions
+
+  monthly:
+    enabled: true
+    cron: "0 8 1 * *"          # 1st of the month, 8 AM UTC
+    description: "Full sweep with major-version bumps, full regression"
+    major_upgrades: true        # monthly DOES do --major-versions
+
+  on_push:
+    enabled: false              # set to true for CI-driven fast checks
+    description: "Analyze + test only — no version bumps — on push to main"
+
+# ── Scope — which packages to upgrade ────────────────────
+# mode: all | pinned | exclude
+scope:
+  mode: all                     # upgrade everything in pubspec.yaml
+
+  # Only used when mode is 'pinned':
+  # packages:
+  #   - riverpod
+  #   - freezed
+  #   - go_router
+  #   - dio
+
+  # Only used when mode is 'exclude':
+  # exclude:
+  #   - firebase_core       # pinned to a known-good version
+  #   - webview_flutter      # has a platform-specific regression
+
+# ── Auto-fix ─────────────────────────────────────────────
+auto_fix:
+  lint: true                    # delegate mechanical lints to Analyzer Auto-Fix (#41)
+  format: true                  # auto-run dart format on changed files
+  codegen: true                 # re-run build_runner after pub upgrade
+
+# ── Commands ─────────────────────────────────────────────
+commands:
+  analyze: "flutter analyze --no-fatal-infos"
+  test: "flutter test --coverage"
+  codegen: "dart run build_runner build --delete-conflicting-outputs"
+  format: "dart format lib/ test/"
+
+  # Override per-cadence if needed:
+  monthly:
+    test: "flutter test --coverage --concurrency=1"  # serial for flaky-test safety
+
+# ── PR defaults ──────────────────────────────────────────
+pr:
+  base_branch: "main"
+  branch_prefix: "maintenance"   # -> maintenance/2026-06-23
+  labels:
+    - "maintenance"
+    - "dependencies"
+    - "automated"
+  reviewers: []                  # e.g. ["@my-team/dev-leads"]
+  draft: false                   # set true to open as draft PR
+
+# ── Safety limits ────────────────────────────────────────
+safety:
+  max_attempts_per_step: 3       # stop and escalate after N retries on any step
+  max_total_runtime_minutes: 60  # hard timeout for the entire sweep
+  skip_if_ci_red: true           # don't sweep if main CI is failing
+  skip_if_open_pr: true          # don't stack maintenance PRs
+  group_size: 1                  # bump N packages per commit (1 = atomic, revertable)
+
+# ── Notifications ────────────────────────────────────────
+notifications:
+  on_success: "comment"          # comment on the PR
+  on_blocked: "issue"            # open a "Maintenance blocked" issue
+  on_failure: "issue"            # open an issue with the failure log

@@ -1,0 +1,27 @@
+{
+  "items": [
+    {
+      "id": "a1b2c3",
+      "title": "Flutter 3 ships impeller by default",
+      "summary": "The rendering engine is now stable on Android.",
+      "author": "Jane Doe",
+      "tags": ["flutter", "android", "release"],
+      "published_at": "2026-05-12T09:30:00Z",
+      "read_time_minutes": 4,
+      "is_premium": false
+    },
+    {
+      "id": "d4e5f6",
+      "title": "Riverpod 2 testing patterns",
+      "summary": "Override providers, never hit the network.",
+      "author": "John Smith",
+      "tags": ["riverpod", "testing"],
+      "published_at": "2026-06-01T14:00:00Z",
+      "read_time_minutes": 7,
+      "is_premium": true
+    }
+  ],
+  "page": 1,
+  "page_size": 20,
+  "total": 2
+}

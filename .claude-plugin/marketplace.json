@@ -1,0 +1,20 @@
+{
+  "name": "android-skills",
+  "owner": {
+    "name": "abhin"
+  },
+  "description": "Marketplace hosting Alchemist — 75+ Flutter/Android skills from idea to production.",
+  "version": "1.0.0",
+  "plugins": [
+    {
+      "name": "alchemist",
+      "source": "./alchemist",
+      "displayName": "Alchemist",
+      "description": "Turns raw ideas into shipped gold. 75+ Flutter skills covering product planning, premium Material 3 design, clean architecture, Riverpod, backend, security, testing, CI/CD, Play Store deployment, autonomous maintenance, crash triage, semantic indexing, token economy, and more. Master Orchestrator drives the full pipeline.",
+      "version": "1.0.0",
+      "category": "development",
+      "keywords": ["flutter", "android", "material3", "riverpod", "architecture", "ui", "ci-cd", "autonomous", "design-system", "testing"],
+      "defaultEnabled": true
+    }
+  ]
+}

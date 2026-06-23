@@ -1,0 +1,37 @@
+# CODEOWNERS — auto-requests reviews per path (stage 19).
+# Replace the @placeholder handles with real GitHub users/teams.
+# Last matching pattern wins, so put the most specific rules at the bottom.
+# Pair with branch protection's "require review from Code Owners".
+
+# Default owners for everything in the repo.
+*                           @your-org/maintainers
+
+# App shell, theme & design tokens (CONVENTIONS §2: lib/app/)
+/lib/app/theme/             @your-org/design
+/lib/app/router/            @your-org/mobile
+
+# Cross-feature core: errors, networking, shared widgets
+/lib/core/                  @your-org/mobile
+/lib/core/network/          @your-org/backend
+/lib/core/error/            @your-org/mobile
+
+# Feature areas (one team per feature as the app grows)
+/lib/features/auth/         @your-org/mobile @your-org/backend
+# /lib/features/<feature>/  @your-org/<team>
+
+# Tests
+/test/                      @your-org/mobile
+/integration_test/          @your-org/mobile
+
+# CI / CD & release config (stages 21–22)
+/.github/                   @your-org/maintainers
+/.github/workflows/         @your-org/maintainers
+/fastlane/                  @your-org/maintainers
+
+# Android signing & native config
+/android/                   @your-org/mobile
+
+# Repo hygiene & docs (this stage + stage 18)
+/.gitignore                 @your-org/maintainers
+/docs/                      @your-org/maintainers
+*.md                        @your-org/maintainers

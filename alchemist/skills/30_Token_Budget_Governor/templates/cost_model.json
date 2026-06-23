@@ -1,0 +1,50 @@
+{
+  "_note": "SEED token estimates per skill, NOT measured facts. These are coarse priors used only until Skill Telemetry (#35) accumulates real per-skill averages — once it has >= `min_samples` runs for a skill, prefer the telemetry mean over the seed here. Token COUNTS may be estimated; PER-TOKEN PRICE must come from pricing.json (which is itself placeholder — see its _verify note). Update seeds as telemetry lands; record the source in `_source`.",
+  "_source": "hand-estimated seeds, 2026-06-23",
+  "_unit": "tokens (input + output) for one typical run of the skill on a small/medium project",
+  "_telemetry": {
+    "enabled_when_present": true,
+    "telemetry_path": ".flutter-pipeline/telemetry.json",
+    "min_samples": 3,
+    "_note": "If telemetry.json exists and has >= min_samples runs for a skill, use its per-skill mean (input/output) instead of the seed below. Fall back to these seeds otherwise."
+  },
+  "heuristics": {
+    "_note": "Fallback when a skill has no seed and no telemetry. estimate = base + per_file_edited*files + per_template_generated*templates + per_plan_stage*stages.",
+    "base": { "input": 8000, "output": 3000 },
+    "per_file_edited": { "input": 1500, "output": 2500 },
+    "per_template_generated": { "input": 1200, "output": 4000 },
+    "per_plan_stage": { "input": 6000, "output": 4000 },
+    "thinking_output_multiplier": 1.0,
+    "_thinking_note": "Adaptive thinking tokens bill as output. If a skill leans on heavy reasoning, raise this multiplier (e.g. 1.3) for its output estimate."
+  },
+  "skills": {
+    "01_Master_Orchestrator": { "input": 20000, "output": 8000, "_note": "Coordination only; per-stage cost is the stage skill's, not this." },
+    "02_Product_Planning": { "input": 12000, "output": 9000 },
+    "03_UI_UX_Planning": { "input": 14000, "output": 11000 },
+    "04_Premium_Design_System": { "input": 18000, "output": 16000 },
+    "05_App_Preview": { "input": 12000, "output": 8000 },
+    "06_Flutter_Architecture": { "input": 22000, "output": 20000 },
+    "07_Navigation": { "input": 14000, "output": 12000 },
+    "08_Riverpod": { "input": 16000, "output": 14000 },
+    "09_Animation": { "input": 12000, "output": 10000 },
+    "10_Asset_Management": { "input": 10000, "output": 7000 },
+    "11_Backend_Integration": { "input": 20000, "output": 18000 },
+    "12_API_Testing": { "input": 16000, "output": 14000 },
+    "13_Security": { "input": 16000, "output": 12000 },
+    "14_Network_Resilience": { "input": 14000, "output": 11000 },
+    "15_Error_Handling": { "input": 14000, "output": 12000 },
+    "16_Loading_States": { "input": 14000, "output": 12000 },
+    "17_Responsive_UI": { "input": 14000, "output": 12000 },
+    "18_Documentation": { "input": 16000, "output": 14000 },
+    "19_GitHub_Workflow": { "input": 10000, "output": 8000 },
+    "20_Testing": { "input": 24000, "output": 22000 },
+    "21_CICD": { "input": 16000, "output": 13000 },
+    "22_Deployment": { "input": 14000, "output": 10000 },
+    "23_Monitoring": { "input": 14000, "output": 11000 },
+    "24_Production_Readiness": { "input": 18000, "output": 10000 },
+    "25_Context_Compression_Engine": { "input": 30000, "output": 6000, "_note": "Reads a lot, emits a compact summary — high input, low output." },
+    "26_Codebase_Semantic_Index": { "input": 26000, "output": 9000 },
+    "30_Token_Budget_Governor": { "input": 6000, "output": 2500, "_note": "This skill: cheap; runs a script, reasons briefly." },
+    "35_Skill_Telemetry": { "input": 5000, "output": 2000 }
+  }
+}

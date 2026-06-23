@@ -1,0 +1,56 @@
+{
+  "provider": "mock",
+  "last_sweep": "2026-06-23T14:00:00Z",
+  "project": "flutter-android-app",
+  "crash_free_pct": 99.2,
+  "previous_crash_free_pct": 99.5,
+  "thresholds": {
+    "crash_free_drop_pct": 2.0,
+    "min_events_for_new_signature": 5,
+    "rate_spike_factor": 3.0
+  },
+  "signatures": {
+    "NullPointerException_at_HomeScreen.build": {
+      "event_count": 12,
+      "rate_per_hour": 1.2,
+      "first_seen": "2026-06-22T08:00:00Z",
+      "last_updated": "2026-06-23T14:00:00Z",
+      "trend": "stable"
+    },
+    "RenderFlex_overflow_at_Dashboard.body": {
+      "event_count": 3,
+      "rate_per_hour": 0.3,
+      "first_seen": "2026-06-23T10:00:00Z",
+      "last_updated": "2026-06-23T14:00:00Z",
+      "trend": "new"
+    },
+    "PlatformException_channel_not_found": {
+      "event_count": 45,
+      "rate_per_hour": 4.5,
+      "first_seen": "2026-06-20T12:00:00Z",
+      "last_updated": "2026-06-23T14:00:00Z",
+      "trend": "rising"
+    },
+    "StateError_build_called_before_dispose": {
+      "event_count": 1,
+      "rate_per_hour": 0.1,
+      "first_seen": "2026-06-23T13:30:00Z",
+      "last_updated": "2026-06-23T14:00:00Z",
+      "trend": "new"
+    }
+  },
+  "previous_signatures": {
+    "NullPointerException_at_HomeScreen.build": {
+      "event_count": 10
+    },
+    "RenderFlex_overflow_at_Dashboard.body": {
+      "event_count": 0
+    },
+    "PlatformException_channel_not_found": {
+      "event_count": 12
+    },
+    "StateError_build_called_before_dispose": {
+      "event_count": 0
+    }
+  }
+}

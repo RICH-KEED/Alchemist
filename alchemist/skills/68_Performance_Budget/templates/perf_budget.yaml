@@ -1,0 +1,281 @@
+name: Performance Budget Gate
+
+on:
+  pull_request:
+    branches: [main]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+  push:
+    branches: [main]
+
+env:
+  BASELINE_PATH: .flutter-pipeline/perf-baseline.json
+  REFERENCE_DEVICE: Pixel_6a_API_33
+  AAB_PATH: build/app/outputs/bundle/release/app-release.aab
+
+jobs:
+  perf-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    strategy:
+      matrix:
+        api-level: [33]
+        arch: [x86_64]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Restore baseline cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.BASELINE_PATH }}
+          key: perf-baseline-${{ github.sha }}
+          restore-keys: |
+            perf-baseline-
+
+      - name: Install AAPT2 / bundletool
+        run: |
+          sdkmanager "build-tools;34.0.0"
+          echo "$ANDROID_HOME/build-tools/34.0.0" >> $GITHUB_PATH
+
+      - name: Measure AAB size
+        id: aab
+        run: |
+          flutter build appbundle --analyze-size
+          SIZE_BYTES=$(stat --printf="%s" ${{ env.AAB_PATH }})
+          SIZE_MB=$(echo "scale=2; $SIZE_BYTES / 1048576" | bc)
+          echo "size_mb=$SIZE_MB" >> $GITHUB_OUTPUT
+          echo "AAB size: $SIZE_MB MB"
+
+      - name: Measure per-ABI APK size
+        id: apk
+        run: |
+          flutter build apk --split-per-abi
+          for abi in arm64-v8a armeabi-v7a x86_64; do
+            APK_PATH="build/app/outputs/flutter-apk/app-${abi}-release.apk"
+            if [ -f "$APK_PATH" ]; then
+              SIZE_BYTES=$(stat --printf="%s" "$APK_PATH")
+              SIZE_MB=$(echo "scale=2; $SIZE_BYTES / 1048576" | bc)
+              echo "${abi}_mb=$SIZE_MB" >> $GITHUB_OUTPUT
+              echo "APK ($abi): $SIZE_MB MB"
+            fi
+          done
+
+      - name: Measure method count
+        id: methods
+        run: |
+          flutter build apk --target-platform=android-arm64
+          APK="build/app/outputs/flutter-apk/app-release.apk"
+          METHOD_COUNT=$(apkanalyzer dex references "$APK" 2>/dev/null | grep 'Total reference count' | awk '{print $NF}' || echo "0")
+          echo "count=$METHOD_COUNT" >> $GITHUB_OUTPUT
+          echo "Method count: $METHOD_COUNT"
+
+      - name: Parse baseline
+        id: baseline
+        run: |
+          if [ ! -f "${{ env.BASELINE_PATH }}" ]; then
+            echo "::warning::No baseline file found at ${{ env.BASELINE_PATH }}. Using defaults."
+            echo '{"version":1,"budgets":{"aab_size_mb":{"max":50},"method_count":{"max":80000}}}' > /tmp/default-baseline.json
+            echo "baseline_path=/tmp/default-baseline.json" >> $GITHUB_OUTPUT
+          else
+            echo "baseline_path=${{ env.BASELINE_PATH }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Compute deltas and evaluate gates
+        id: gate
+        run: |
+          python3 << 'PYEOF'
+          import json, os, sys
+
+          baseline_path = os.environ.get("BASELINE_PATH", "/tmp/default-baseline.json")
+          if not os.path.exists(baseline_path):
+              baseline_path = "/tmp/default-baseline.json"
+
+          with open(baseline_path) as f:
+              baseline = json.load(f)
+
+          budgets = baseline.get("budgets", {})
+
+          # Read measured values from previous steps
+          measured = {}
+          for key, env_key in [
+              ("size_mb", "AAB_SIZE_MB"),
+              ("method_count", "METHOD_COUNT"),
+          ]:
+              val = os.environ.get(env_key)
+              if val and val != "0":
+                  measured[key] = float(val)
+
+          # Build delta report
+          report_lines = ["| Metric | Measured | Baseline Max | Warn | Delta | Status |"]
+          report_lines.append("|---|---|---|---|---|---|")
+
+          regressions = []
+          warnings = []
+
+          checks = {
+              "size_mb": ("aab_size_mb", "MB"),
+              "method_count": ("method_count", "count"),
+          }
+
+          for measured_key, (budget_key, unit) in checks.items():
+              if measured_key not in measured:
+                  continue
+              budget = budgets.get(budget_key, {})
+              val = measured[measured_key]
+              max_val = budget.get("max", float("inf"))
+              warn_val = budget.get("warn", max_val)
+              delta = val - max_val
+              pct = (delta / max_val * 100) if max_val > 0 else 0
+
+              status = "🟢 OK"
+              if val > max_val:
+                  status = "🔴 FAIL"
+                  regressions.append(f"{budget_key}: {val:.1f}{unit} > {max_val}{unit} ({pct:+.1f}%)")
+              elif val > warn_val:
+                  status = "🟡 WARN"
+                  warnings.append(f"{budget_key}: {val:.1f}{unit} exceeds warn threshold {warn_val}{unit}")
+
+              report_lines.append(
+                  f"| {budget_key} | {val:.1f} {unit} | {max_val} {unit} | "
+                  f"{warn_val} {unit} | {pct:+.1f}% | {status} |"
+              )
+
+          # Also check regression from baseline stored previous value
+          prev_values = budgets.get("_previous", {})
+          regression_pct = budgets.get("regression_max_pct", 5.0)
+          for key, prev_val in prev_values.items():
+              if key.replace("_prev", "") in measured:
+                  cur = measured[key.replace("_prev", "")]
+                  if prev_val > 0:
+                      change_pct = (cur - prev_val) / prev_val * 100
+                      if change_pct > regression_pct:
+                          regressions.append(
+                              f"{key}: regressed {change_pct:+.1f}% from baseline ({prev_val} -> {cur})"
+                          )
+
+          # Output
+          report = "\n".join(report_lines)
+
+          # GitHub step outputs
+          with open(os.environ.get("GITHUB_OUTPUT"), "a") as out:
+              print(f"report<<EOF\n{report}\nEOF", file=out)
+              print(f"has_regressions={'true' if regressions else 'false'}", file=out)
+              print(f"has_warnings={'true' if warnings else 'false'}", file=out)
+
+          # Print report for logs
+          print(report)
+          if regressions:
+              print("\n--- REGRESSIONS ---")
+              for r in regressions:
+                  print(f"  FAIL: {r}")
+          if warnings:
+              print("\n--- WARNINGS ---")
+              for w in warnings:
+                  print(f"  WARN: {w}")
+
+          # Determine pass/fail
+          if regressions:
+              print("\n::error::Performance budget gate FAILED")
+              sys.exit(1)
+          elif warnings:
+              print("\n::warning::Performance budget gate passed with warnings")
+              sys.exit(0)
+          else:
+              print("\n::notice::Performance budget gate passed")
+              sys.exit(0)
+          PYEOF
+        env:
+          AAB_SIZE_MB: ${{ steps.aab.outputs.size_mb }}
+          METHOD_COUNT: ${{ steps.methods.outputs.count }}
+
+      - name: Post PR comment
+        if: github.event_name == 'pull_request'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: perf-budget
+          message: |
+            ## 📊 Performance Budget Report
+
+            ${{ steps.gate.outputs.report }}
+
+            Baseline: `${{ env.BASELINE_PATH }}` (commit `${{ github.event.pull_request.base.sha }}`)
+
+            > Gate status: ${{ steps.gate.outputs.has_regressions == 'true' && '🔴 FAIL' || '🟢 PASS' }}
+
+      - name: Update baseline on merge to main
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          python3 << 'PYEOF'
+          import json, os
+
+          baseline_path = os.environ["BASELINE_PATH"]
+          baseline = {"version": 1, "updated": "", "updated_by": "", "budgets": {}}
+
+          if os.path.exists(baseline_path):
+              with open(baseline_path) as f:
+                  baseline = json.load(f)
+
+          from datetime import datetime, timezone
+          baseline["updated"] = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+          baseline["updated_by"] = os.environ.get("GITHUB_SHA", "")
+
+          budgets = baseline.setdefault("budgets", {})
+
+          # Update values that improved (lower is better)
+          aab_mb = os.environ.get("AAB_SIZE_MB")
+          if aab_mb:
+              aab_mb = float(aab_mb)
+              current = budgets.get("aab_size_mb", {})
+              prev_actual = current.get("_previous_actual", aab_mb)
+              if aab_mb < prev_actual:
+                  current["_previous_actual"] = aab_mb
+              budgets["aab_size_mb"] = current
+
+          method_count = os.environ.get("METHOD_COUNT")
+          if method_count:
+              method_count = int(method_count)
+              current = budgets.get("method_count", {})
+              prev_actual = current.get("_previous_actual", method_count)
+              if method_count < prev_actual:
+                  current["_previous_actual"] = method_count
+              budgets["method_count"] = current
+
+          os.makedirs(os.path.dirname(baseline_path), exist_ok=True)
+          with open(baseline_path, "w") as f:
+              json.dump(baseline, f, indent=2)
+
+          print(f"Baseline updated at {baseline_path}")
+          PYEOF
+        env:
+          AAB_SIZE_MB: ${{ steps.aab.outputs.size_mb }}
+          METHOD_COUNT: ${{ steps.methods.outputs.count }}
+
+      - name: Commit updated baseline
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          if [ -n "$(git status --porcelain ${{ env.BASELINE_PATH }})" ]; then
+            git config user.name "perf-bot"
+            git config user.email "perf-bot@ci"
+            git add ${{ env.BASELINE_PATH }}
+            git commit -m "chore: update perf baseline $(date -u +%Y-%m-%d)
+          Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>"
+            git push
+          else
+            echo "No baseline changes to commit"
+          fi

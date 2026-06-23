@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "entries": [
+    {
+      "bug_id": "REG-001",
+      "title": "NullPointer in PaymentRepository.getCards after null API response field",
+      "signature": {
+        "files": ["lib/features/payment/data/payment_repository.dart"],
+        "functions": ["PaymentRepository.getCards", "_mapDtoToCard"],
+        "patterns": ["\\.map\\(.*\\)\\.toList\\(\\)", "Card\\("],
+        "error_type": "NullSafety"
+      },
+      "root_cause": "null_safety",
+      "fix_commit": "abc1234",
+      "guarding_test": "test/features/payment/data/payment_repository_test.dart",
+      "tags": ["payment", "crash"],
+      "date": "2026-06-15"
+    },
+    {
+      "bug_id": "REG-002",
+      "title": "Race condition in AuthNotifier.login — state read before Future completes",
+      "signature": {
+        "files": ["lib/features/auth/auth_notifier.dart"],
+        "functions": ["AuthNotifier.login", "AuthNotifier._persistToken"],
+        "patterns": ["ref\\.read\\(authProvider\\.notifier\\)", "unawaited\\("],
+        "error_type": "StateError"
+      },
+      "root_cause": "concurrency_race",
+      "fix_commit": "def5678",
+      "guarding_test": "test/features/auth/auth_notifier_test.dart",
+      "tags": ["auth", "race", "flaky"],
+      "date": "2026-06-18"
+    },
+    {
+      "bug_id": "REG-003",
+      "title": "RenderFlex overflow in ProfileScreen when display name is too long",
+      "signature": {
+        "files": ["lib/features/profile/profile_screen.dart"],
+        "functions": ["ProfileScreen.build", "_ProfileHeader"],
+        "patterns": ["Flexible\\(", "TextOverflow\\.ellipsis", "maxLines"],
+        "error_type": "RenderFlexOverflow"
+      },
+      "root_cause": "rendering_layout",
+      "fix_commit": "ghi9012",
+      "guarding_test": "test/features/profile/profile_screen_test.dart",
+      "tags": ["profile", "layout", "overflow"],
+      "date": "2026-06-20"
+    }
+  ]
+}

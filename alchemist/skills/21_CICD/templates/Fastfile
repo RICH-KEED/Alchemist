@@ -1,0 +1,50 @@
+# fastlane/Fastfile — Android lanes for the flutter-android pipeline (stage 21).
+#
+# These lanes wrap the same Flutter commands CI runs, so they work locally and in CI.
+# - test            : run the test suite with coverage (the "verify" stage as a lane).
+# - build           : build a signed, obfuscated release AAB.
+# - deploy_internal : build, then upload to the Play Console internal track (skill 22 owns the
+#                     store strategy; this lane is the hook CI calls).
+#
+# `supply` needs a Google Play service-account JSON. Provide it as a CI secret and point
+# SUPPLY_JSON_KEY (or json_key) at the decoded file — never commit the key. See signing_setup.md.
+
+default_platform(:android)
+
+# Project paths relative to the Flutter project root (fastlane/ lives at the repo root).
+AAB_PATH = "build/app/outputs/bundle/release/app-release.aab".freeze
+SYMBOLS_DIR = "build/symbols".freeze
+
+platform :android do
+  desc "Run analyzer + tests with coverage (verify stage)"
+  lane :test do
+    sh("cd .. && flutter pub get")
+    sh("cd .. && flutter analyze --fatal-infos")
+    sh("cd .. && flutter test --coverage")
+  end
+
+  desc "Build a signed, obfuscated release AAB"
+  lane :build do
+    # Assumes key.properties + signingConfigs are in place (CI writes them; see signing_setup.md).
+    sh("cd .. && flutter build appbundle --release " \
+       "--obfuscate --split-debug-info=#{SYMBOLS_DIR}")
+    UI.success("Built #{AAB_PATH}")
+  end
+
+  desc "Build and upload to the Play Console internal track"
+  lane :deploy_internal do
+    build
+
+    # Store distribution — coordinated with skill 22 (Deployment).
+    # `json_key` defaults to ENV['SUPPLY_JSON_KEY']; pass the decoded service-account file there.
+    upload_to_play_store(
+      track: "internal",
+      aab: "../#{AAB_PATH}",
+      release_status: "draft",     # promote/rollout policy lives in skill 22
+      skip_upload_metadata: true,  # metadata + screenshots are managed by skill 22
+      skip_upload_images: true,
+      skip_upload_screenshots: true,
+    )
+    UI.success("Uploaded to Play internal track (draft).")
+  end
+end

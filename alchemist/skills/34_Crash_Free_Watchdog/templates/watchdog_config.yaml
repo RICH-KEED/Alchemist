@@ -1,0 +1,67 @@
+# Crash Free Watchdog — Provider & Threshold Configuration
+# Copy this file to your project root and adjust for your provider and thresholds.
+# The skill reads this file on each sweep; changes take effect on the next run.
+
+# ── Provider ──────────────────────────────────────────────────────────
+# Which crash-reporting backend to query.
+provider: sentry                    # one of: sentry | crashlytics
+
+# ── Provider connection ───────────────────────────────────────────────
+provider_config:
+  # ── Sentry fields (used when provider == sentry) ──
+  sentry:
+    org_slug: "your-org"             # Sentry organization slug
+    project_slug: "your-project"     # Sentry project slug
+    api_key_env: "SENTRY_AUTH_TOKEN" # Env var holding the org-level auth token (scope: event:read)
+    base_url: "https://sentry.io/api/0"
+    # API docs: https://docs.sentry.io/api/
+
+  # ── Firebase Crashlytics fields (used when provider == crashlytics) ──
+  crashlytics:
+    app_id: "1:123456789:android:abc123"  # Firebase app ID (find in Project Settings)
+    creds_env: "GOOGLE_APPLICATION_CREDENTIALS"  # Env var pointing to service-account JSON
+    # The service account needs: Firebase Crashlytics Viewer role (read-only).
+    # API docs: https://firebase.google.com/docs/reference/admin/rest
+
+# ── Thresholds ────────────────────────────────────────────────────────
+thresholds:
+  crash_free_drop_pct: 2.0           # Minimum percentage-point drop in crash-free rate to alert.
+                                     # E.g., from 99.2% to 97.1% → 2.1pp drop → alert fired.
+
+  min_events_for_new_signature: 5    # A new crash group needs this many events in the sweep window
+                                     # to be treated as an actionable new signature. Lower counts
+                                     # are logged to state but do not generate an issue.
+
+  rate_spike_factor: 3.0             # An existing signature must spike to ≥ this factor times its
+                                     # rolling-average event rate to trigger a spike alert.
+                                     # E.g., avg 2 events/hr → a sweep with 7 events fires (7 ≥ 2×3).
+
+# ── Sweep schedule ────────────────────────────────────────────────────
+check_interval: 3600                 # Seconds between sweeps (3600 = 1 hour). Do not set below 300
+                                     # (5 min) — respect provider rate limits.
+
+# ── Lookback window ───────────────────────────────────────────────────
+# How far back each sweep looks for new events (should match check_interval in practice).
+lookback_seconds: 3600               # Must be ≥ check_interval to avoid gaps.
+
+# ── GitHub issue settings ─────────────────────────────────────────────
+issue:
+  repo: "owner/repo"                 # GitHub repo in owner/name format
+  labels:
+    - "crash-watchdog"               # Always applied
+    - "monitoring"                   # Marks issue as monitoring-originated
+  auto_assign: ""                    # GitHub handle to auto-assign issues to (e.g., "oncall-bot").
+                                     # Leave empty to skip auto-assignment.
+
+  # Additional labels are applied per-signal based on classification:
+  #   severity: P1 / P2 / P3
+  #   family: null-npe / platform / async-gap / widget-tree / unclassified
+
+# ── State file ────────────────────────────────────────────────────────
+# Where the skill persists the last-known baseline so it can diff on the next sweep.
+state_file: ".crash_watchdog/state.json"
+
+# ── Noise suppression ─────────────────────────────────────────────────
+# Signatures that appear below thresholds for this many consecutive sweeps
+# are pruned from the state file to keep it lean.
+noise_prune_after_sweeps: 24         # 24 sweeps at 1hr = 1 day. Set to 0 to never prune.
